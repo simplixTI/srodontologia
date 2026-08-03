@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { EXTERNAL_ROLES } from '@/lib/permissions/roles';
 import { LogoLockup } from '@/components/ui/Logo';
+import { NotConfiguredScreen } from '@/components/hub/NotConfiguredScreen';
 import { logoutAction } from '@/features/auth/actions/logout';
 import type { UserRole } from '@/types/database';
 
@@ -13,6 +15,8 @@ export default async function PortalLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if (!isSupabaseConfigured()) return <NotConfiguredScreen />;
+
   const supabase = createSupabaseServerClient();
   const {
     data: { user }

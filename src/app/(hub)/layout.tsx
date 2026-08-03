@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { INTERNAL_ROLES } from '@/lib/permissions/roles';
 import { Sidebar } from '@/components/hub/Sidebar';
 import { Header } from '@/components/hub/Header';
+import { NotConfiguredScreen } from '@/components/hub/NotConfiguredScreen';
 import type { UserRole } from '@/types/database';
 
 export const dynamic = 'force-dynamic';
@@ -12,6 +14,8 @@ export default async function HubLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if (!isSupabaseConfigured()) return <NotConfiguredScreen />;
+
   const supabase = createSupabaseServerClient();
 
   const {

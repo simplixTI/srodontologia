@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { EXTERNAL_ROLES, INTERNAL_ROLES } from '@/lib/permissions/roles';
 import type { UserRole } from '@/types/database';
 
@@ -36,8 +37,18 @@ function matchesAny(pathname: string, prefixes: string[]): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  // If Supabase isn't configured yet, don't try to auth — just pass through.
+  // Route handlers/pages themselves render friendly "coming soon" screens.
+  if (!isSupabaseConfigured()) {
+    return NextResponse.next({ request });
+  }
+
   const { response, supabase, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
+
+  if (!supabase) {
+    return response;
+  }
 
   // --- Unauthenticated users ---
   if (!user) {

@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { LogoLockup } from '@/components/ui/Logo';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { NotConfiguredScreen } from '@/components/hub/NotConfiguredScreen';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  if (!isSupabaseConfigured()) return <NotConfiguredScreen />;
+
   return (
     <main className="relative min-h-[100svh] overflow-hidden bg-black">
       {/* Ambient background */}
