@@ -24,7 +24,7 @@ export async function sendEmail({ to, subject, html, text, attachments = [] }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from =
     process.env.RESEND_FROM ??
-    'SR Digital <onboarding@resend.dev>'; // Resend sandbox until you verify your domain
+    'SR Digital <no-reply@srodontologiadigital.com.br>';
 
   if (!apiKey) {
     throw new Error('Missing RESEND_API_KEY env var.');
