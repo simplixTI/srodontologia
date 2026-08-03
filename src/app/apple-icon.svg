@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F7ECCF"/>
+      <stop offset="25%" stop-color="#F0DEA9"/>
+      <stop offset="55%" stop-color="#D9B45F"/>
+      <stop offset="80%" stop-color="#C9A24B"/>
+      <stop offset="100%" stop-color="#8E6B2A"/>
+    </linearGradient>
+    <linearGradient id="sh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.28"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="35%" r="50%">
+      <stop offset="0%" stop-color="#C9A24B" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="180" height="180" rx="38" fill="#000"/>
+  <rect width="180" height="180" rx="38" fill="url(#halo)"/>
+  <rect width="180" height="180" rx="38" fill="url(#sh)"/>
+
+  <!-- S -->
+  <path d="M78 50
+           Q50 50 50 72
+           Q50 91 78 91
+           Q106 91 106 111
+           Q106 132 78 132"
+        stroke="url(#g)" stroke-width="12"
+        stroke-linecap="round" fill="none"/>
+
+  <!-- R -->
+  <path d="M112 50 L112 132
+           M112 50 L134 50
+           Q152 50 152 70
+           Q152 90 134 90
+           L112 90
+           M134 90 L152 132"
+        stroke="url(#g)" stroke-width="12"
+        stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Divider -->
+  <circle cx="90" cy="150" r="3.5" fill="url(#g)"/>
+  <line x1="62" y1="160" x2="118" y2="160" stroke="url(#g)" stroke-width="2" opacity="0.7"/>
+</svg>
