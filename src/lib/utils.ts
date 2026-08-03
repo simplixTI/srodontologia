@@ -11,8 +11,8 @@ export const SITE = {
   tagline: 'Precisão Digital para Reabilitações Implantossuportadas',
   manifesto: 'Mais do que fabricar próteses. Planejamos resultados.',
   url: 'https://srdigital.com.br',
-  whatsapp: '5531999999999',
-  whatsappDisplay: '+55 (31) 99999-9999',
+  whatsapp: '5532991651437',
+  whatsappDisplay: '+55 (32) 99165-1437',
   email: 'contato@srdigital.com.br',
   address: 'Belo Horizonte · Minas Gerais · Brasil',
   instagram: 'https://www.instagram.com/srodontologiadigital/',
@@ -21,4 +21,4 @@ export const SITE = {
 };
 
 export const whatsappLink = (message = 'Olá SR Digital, gostaria de agendar uma apresentação.') =>
-  `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(message)}`;
+  `https://api.whatsapp.com/send?phone=${SITE.whatsapp}&text=${encodeURIComponent(message)}`;
