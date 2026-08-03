@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, MessageCircle } from 'lucide-react';
 import { LogoLockup } from '@/components/ui/Logo';
 import { Button } from '@/components/ui/Button';
 import { cn, whatsappLink } from '@/lib/utils';
@@ -44,12 +44,12 @@ export function Navbar() {
             : 'bg-transparent'
         )}
       >
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-10">
+        <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-6 md:px-10">
           <a href="#top" className="group inline-flex items-center">
-            <LogoLockup />
+            <LogoLockup width={120} priority />
           </a>
 
-          <nav className="hidden items-center gap-9 lg:flex">
+          <nav className="hidden items-center gap-10 lg:flex">
             {links.map((link) => (
               <a
                 key={link.href}
@@ -62,17 +62,16 @@ export function Navbar() {
             ))}
           </nav>
 
-          <div className="hidden lg:block">
-            <Button
-              as="a"
+          <div className="hidden items-center gap-3 lg:flex">
+            <a
               href={whatsappLink()}
               target="_blank"
               rel="noreferrer"
-              size="sm"
-              variant="gold"
+              aria-label="WhatsApp"
+              className="group inline-flex h-11 w-11 items-center justify-center rounded-full border border-gold/25 text-gold-100 transition hover:border-gold/70 hover:bg-gold/10 hover:text-gold-50"
             >
-              Agendar Apresentação
-            </Button>
+              <MessageCircle className="h-4 w-4" strokeWidth={1.5} />
+            </a>
           </div>
 
           <button
@@ -95,8 +94,8 @@ export function Navbar() {
             transition={{ duration: 0.35 }}
             className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-2xl lg:hidden"
           >
-            <div className="flex h-20 items-center justify-between px-6">
-              <LogoLockup />
+            <div className="flex h-24 items-center justify-between px-6">
+              <LogoLockup width={110} />
               <button
                 aria-label="Fechar menu"
                 onClick={() => setOpen(false)}

@@ -7,7 +7,7 @@ import {
   MapPin,
   Shield
 } from 'lucide-react';
-import { LogoMark } from '@/components/ui/Logo';
+import { LogoLockup } from '@/components/ui/Logo';
 import { SITE, whatsappLink } from '@/lib/utils';
 
 const quickLinks = [
@@ -38,16 +38,9 @@ export function Footer() {
       <div className="relative mx-auto max-w-7xl px-6 md:px-10">
         <div className="grid gap-14 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <div className="flex items-center gap-3">
-              <LogoMark size={44} />
-              <div>
-                <div className="font-display text-xl tracking-[0.2em] text-white">
-                  SR <span className="gold-text">DIGITAL</span>
-                </div>
-                <div className="mt-1 text-[0.55rem] tracking-[0.4em] text-white/40">
-                  DIGITAL · IMPLANT · CENTER
-                </div>
-              </div>
+            <LogoLockup width={160} />
+            <div className="mt-3 text-[0.55rem] tracking-[0.4em] text-white/40">
+              DIGITAL · IMPLANT · CENTER
             </div>
 
             <p className="mt-6 max-w-md text-sm leading-relaxed text-white/60">

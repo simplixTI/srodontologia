@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowUpRight } from 'lucide-react';
 
 type Variant = 'gold' | 'ghost' | 'quiet';
 type Size = 'sm' | 'md' | 'lg';
@@ -14,7 +13,7 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   href?: string;
   target?: string;
   rel?: string;
-  icon?: boolean;
+  icon?: React.ReactNode;
 };
 
 const sizes: Record<Size, string> = {
@@ -33,7 +32,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(function Button
     href,
     target,
     rel,
-    icon = true,
+    icon,
     ...rest
   },
   ref
@@ -52,12 +51,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(function Button
   const inner = (
     <>
       <span className="relative z-10">{children}</span>
-      {icon && (
-        <ArrowUpRight
-          className="relative z-10 h-4 w-4 transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          strokeWidth={1.5}
-        />
-      )}
+      {icon ? <span className="relative z-10">{icon}</span> : null}
     </>
   );
 
