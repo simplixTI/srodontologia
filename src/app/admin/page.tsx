@@ -41,7 +41,7 @@ export default function AdminPage() {
         >
           <Sparkles className="h-3 w-3 text-gold-300" strokeWidth={1.5} />
           <span className="text-[0.6rem] uppercase tracking-[0.35em] text-gold-100">
-            Painel Administrativo
+            SR HUB
           </span>
         </motion.div>
 

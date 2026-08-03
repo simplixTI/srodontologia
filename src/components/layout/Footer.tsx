@@ -73,7 +73,7 @@ export function Footer() {
                 className="group inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-[0.65rem] uppercase tracking-[0.3em] text-white/50 transition hover:border-gold/40 hover:text-white/80"
               >
                 <Shield className="h-3.5 w-3.5" strokeWidth={1.5} />
-                Painel Administrativo
+                SR HUB
               </a>
             </div>
           </div>
