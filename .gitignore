@@ -5,8 +5,13 @@ build/
 .env
 .env.local
 .env.production
+.env.*.local
 .DS_Store
 *.log
 .vscode/
 .idea/
 next-env.d.ts
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
