@@ -2,6 +2,7 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
+import { getSupabaseUrl, getSupabaseAnonKey } from './config';
 
 /**
  * Server-side Supabase client, bound to the current request's cookies.
@@ -11,8 +12,8 @@ export function createSupabaseServerClient() {
   const cookieStore = cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabaseUrl()!,
+    getSupabaseAnonKey()!,
     {
       cookies: {
         getAll() {

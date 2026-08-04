@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { isSupabaseConfigured } from './config';
+import { isSupabaseConfigured, getSupabaseUrl, getSupabaseAnonKey } from './config';
 
 /**
  * Middleware-safe Supabase client that refreshes the auth session
@@ -18,8 +18,8 @@ export async function updateSession(request: NextRequest) {
   }
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabaseUrl()!,
+    getSupabaseAnonKey()!,
     {
       cookies: {
         getAll() {

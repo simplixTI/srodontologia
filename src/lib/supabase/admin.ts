@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { createClient } from '@supabase/supabase-js';
+import { getSupabaseUrl } from './config';
 
 /**
  * Privileged Supabase client using the SERVICE ROLE key.
@@ -15,7 +16,7 @@ import { createClient } from '@supabase/supabase-js';
  *  - webhooks that need to write on behalf of the system
  */
 export function createSupabaseAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const url = getSupabaseUrl();
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !key) {
