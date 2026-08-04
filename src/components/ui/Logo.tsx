@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
+// Master logo file is 1077 × 726 px
+const LOGO_ASPECT = 726 / 1077;
+
 type Props = {
   className?: string;
   width?: number;
@@ -8,14 +11,16 @@ type Props = {
 };
 
 export function LogoLockup({ className, width = 140, priority }: Props) {
+  const height = Math.round(width * LOGO_ASPECT);
   return (
     <Image
       src="/Logo.png"
       alt="SR Digital — Planning · Design · Manufacturing"
       width={width}
-      height={Math.round(width * (726 / 1077))}
+      height={height}
       priority={priority}
-      className={cn('h-auto w-auto select-none', className)}
+      style={{ width, height }}
+      className={cn('block select-none object-contain', className)}
     />
   );
 }
@@ -27,13 +32,15 @@ export function LogoCompact({
   className?: string;
   size?: number;
 }) {
+  const height = Math.round(size * LOGO_ASPECT);
   return (
     <Image
       src="/Logo.png"
       alt="SR Digital"
       width={size}
-      height={Math.round(size * (726 / 1077))}
-      className={cn('h-auto w-auto select-none', className)}
+      height={height}
+      style={{ width: size, height }}
+      className={cn('block select-none object-contain', className)}
     />
   );
 }
