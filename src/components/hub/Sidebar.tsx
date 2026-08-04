@@ -31,7 +31,7 @@ const groups = [
       { href: '/leads',     icon: Users,           label: 'CRM' },
       { href: '/dentistas', icon: UserCircle2,     label: 'Dentistas' },
       { href: '/clinicas',  icon: Building2,       label: 'Clínicas' },
-      { href: '/casos',     icon: Briefcase,       label: 'Casos',      disabled: true }
+      { href: '/casos',     icon: Briefcase,       label: 'Casos' }
     ]
   },
   {
