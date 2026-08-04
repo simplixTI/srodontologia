@@ -6,6 +6,7 @@ import { logoutAction } from '@/features/auth/actions/logout';
 import { ROLE_LABELS } from '@/lib/permissions/roles';
 import type { UserRole } from '@/types/database';
 import { NotificationsBell } from './NotificationsBell';
+import { CommandPalette } from './CommandPalette';
 import type { Notification } from '@/features/notifications/queries';
 
 type Props = {
@@ -42,15 +43,21 @@ export function Header({ user, notifications, unread }: Props) {
 
   return (
     <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-gold/10 bg-black/70 px-6 backdrop-blur">
-      {/* Search (placeholder) */}
+      <CommandPalette />
+      {/* Search trigger */}
       <div className="flex flex-1 items-center gap-3">
-        <div className="hidden items-center gap-2 rounded-full border border-gold/10 bg-white/[0.02] px-4 py-2 text-sm text-white/40 md:flex md:min-w-[340px]">
+        <button
+          onClick={() =>
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
+          }
+          className="hidden items-center gap-2 rounded-full border border-gold/10 bg-white/[0.02] px-4 py-2 text-sm text-white/40 transition hover:border-gold/30 hover:text-white/70 md:flex md:min-w-[340px]"
+        >
           <Search className="h-3.5 w-3.5" strokeWidth={1.5} />
-          <span>Buscar casos, dentistas, orçamentos...</span>
+          <span>Buscar casos, dentistas, clínicas...</span>
           <kbd className="ml-auto rounded border border-white/10 px-1.5 py-0.5 text-[0.55rem] tracking-widest text-white/40">
             ⌘K
           </kbd>
-        </div>
+        </button>
       </div>
 
       <div className="flex items-center gap-3">

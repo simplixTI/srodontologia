@@ -4,6 +4,7 @@ import { Plus, Briefcase, UserCircle2, Building2, Calendar, Clock } from 'lucide
 import { listCases } from '@/features/cases/queries';
 import { calcSla, slaBadgeClass } from '@/features/cases/sla';
 import { PUBLIC_STATUS_LABELS, CASE_PRIORITY_LABELS, type CasePriority } from '@/lib/validations/cases';
+import { FilterSelect } from './FilterSelect';
 
 export const metadata: Metadata = { title: 'Casos · SR HUB' };
 export const dynamic = 'force-dynamic';
@@ -22,13 +23,66 @@ function healthBand(score: number) {
   return { label: 'Crítico',                    cls: 'text-rose-200 border-rose-400/30 bg-rose-400/10' };
 }
 
+const SLA_FILTERS = [
+  { key: '',           label: 'Todos' },
+  { key: 'overdue',    label: 'Atrasados' },
+  { key: 'due_today',  label: 'Vencem hoje' },
+  { key: 'at_risk',    label: 'Risco (≤ 2d)' },
+  { key: 'on_track',   label: 'No prazo' },
+  { key: 'delivered',  label: 'Entregues' }
+] as const;
+
+const STATUS_FILTERS = [
+  { key: '',                    label: 'Todos os status' },
+  { key: 'draft',               label: 'Rascunho' },
+  { key: 'submitted',           label: 'Enviado' },
+  { key: 'under_review',        label: 'Em análise' },
+  { key: 'missing_information', label: 'Info pendentes' },
+  { key: 'production_queue',    label: 'Fila de produção' },
+  { key: 'quality_control',     label: 'Controle qualidade' },
+  { key: 'ready_for_dispatch',  label: 'Pronto p/ envio' },
+  { key: 'dispatched',          label: 'Despachado' },
+  { key: 'delivered',           label: 'Entregue' },
+  { key: 'completed',           label: 'Finalizado' },
+  { key: 'cancelled',           label: 'Cancelado' }
+] as const;
+
+const PRIORITY_FILTERS = [
+  { key: '',       label: 'Todas prioridades' },
+  { key: 'urgent', label: 'Urgente' },
+  { key: 'high',   label: 'Alta' },
+  { key: 'normal', label: 'Normal' },
+  { key: 'low',    label: 'Baixa' }
+] as const;
+
+type Params = { q?: string; status?: string; priority?: string; sla?: string };
+
+function buildHref(base: Params, override: Partial<Params>): string {
+  const merged: Params = { ...base, ...override };
+  const p = new URLSearchParams();
+  for (const [k, v] of Object.entries(merged)) {
+    if (v && String(v).length > 0) p.set(k, String(v));
+  }
+  const qs = p.toString();
+  return qs ? `/casos?${qs}` : '/casos';
+}
+
 export default async function CasesPage({
   searchParams
 }: {
-  searchParams?: { q?: string };
+  searchParams?: Params;
 }) {
   const search = searchParams?.q?.trim() ?? '';
-  const cases = await listCases({ search });
+  const status = searchParams?.status ?? '';
+  const priority = searchParams?.priority ?? '';
+  const sla = searchParams?.sla ?? '';
+
+  const cases = await listCases({
+    search,
+    status: status || undefined,
+    priority: priority || undefined,
+    slaBucket: (sla || undefined) as ('overdue' | 'due_today' | 'at_risk' | 'on_track' | 'delivered' | undefined)
+  });
 
   const drafts = cases.filter((c) => c.internal_status === 'draft').length;
   const inFlight = cases.filter(
@@ -68,20 +122,75 @@ export default async function CasesPage({
         </div>
       </header>
 
-      <form action="/casos" method="get" className="flex items-center gap-3">
-        <input
-          name="q"
-          defaultValue={search}
-          placeholder="Buscar por título ou número do caso..."
-          className="h-11 flex-1 rounded-xl border border-gold/15 bg-black/40 px-4 text-sm text-white placeholder-white/30 focus:border-gold/60 focus:outline-none focus:ring-2 focus:ring-gold/25"
-        />
-        <button
-          type="submit"
-          className="h-11 rounded-xl border border-gold/25 px-5 text-[0.65rem] uppercase tracking-[0.28em] text-gold-100 hover:bg-gold/5"
-        >
-          Buscar
-        </button>
-      </form>
+      <div className="flex flex-col gap-4">
+        <form action="/casos" method="get" className="flex items-center gap-3">
+          {/* Preserve current filters when submitting search */}
+          {status && <input type="hidden" name="status" value={status} />}
+          {priority && <input type="hidden" name="priority" value={priority} />}
+          {sla && <input type="hidden" name="sla" value={sla} />}
+          <input
+            name="q"
+            defaultValue={search}
+            placeholder="Buscar por título ou número do caso..."
+            className="h-11 flex-1 rounded-xl border border-gold/15 bg-black/40 px-4 text-sm text-white placeholder-white/30 focus:border-gold/60 focus:outline-none focus:ring-2 focus:ring-gold/25"
+          />
+          <button
+            type="submit"
+            className="h-11 rounded-xl border border-gold/25 px-5 text-[0.65rem] uppercase tracking-[0.28em] text-gold-100 hover:bg-gold/5"
+          >
+            Buscar
+          </button>
+        </form>
+
+        {/* SLA pills */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[0.55rem] uppercase tracking-[0.3em] text-white/40 mr-1">Prazo:</span>
+          {SLA_FILTERS.map((f) => (
+            <Link
+              key={f.key || 'all'}
+              href={buildHref({ q: search, status, priority }, { sla: f.key })}
+              className={
+                'inline-flex h-7 items-center rounded-full border px-3 text-[0.55rem] uppercase tracking-[0.28em] transition ' +
+                (sla === f.key
+                  ? 'border-gold/60 bg-gold/10 text-gold-100'
+                  : 'border-white/10 bg-white/[0.02] text-white/50 hover:border-gold/30 hover:text-white')
+              }
+            >
+              {f.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Status + Priority selects */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[0.55rem] uppercase tracking-[0.3em] text-white/40">Status:</span>
+            <FilterSelect
+              name="status"
+              value={status}
+              options={STATUS_FILTERS}
+              preserve={{ q: search, priority, sla }}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[0.55rem] uppercase tracking-[0.3em] text-white/40">Prioridade:</span>
+            <FilterSelect
+              name="priority"
+              value={priority}
+              options={PRIORITY_FILTERS}
+              preserve={{ q: search, status, sla }}
+            />
+          </div>
+          {(search || status || priority || sla) && (
+            <Link
+              href="/casos"
+              className="inline-flex h-8 items-center rounded-lg border border-white/10 bg-white/[0.02] px-3 text-[0.55rem] uppercase tracking-[0.28em] text-white/50 transition hover:border-rose-400/30 hover:text-rose-200"
+            >
+              limpar filtros
+            </Link>
+          )}
+        </div>
+      </div>
 
       {cases.length === 0 ? (
         <div className="mx-auto flex max-w-md flex-col items-center rounded-3xl border border-gold/10 bg-white/[0.02] p-14 text-center">

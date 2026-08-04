@@ -46,7 +46,16 @@ export type CaseWithRelations = CaseRow & {
   case_type: { id: string; name: string } | null;
 };
 
-export async function listCases(opts?: { search?: string; status?: string }) {
+export type ListCasesFilter = {
+  search?: string;
+  status?: string;         // internal_status
+  priority?: string;
+  caseTypeId?: string;
+  dentistId?: string;
+  slaBucket?: 'overdue' | 'due_today' | 'at_risk' | 'on_track' | 'no_date' | 'delivered';
+};
+
+export async function listCases(opts?: ListCasesFilter) {
   const supabase = createSupabaseServerClient();
   let q = supabase
     .from('cases')
@@ -63,10 +72,19 @@ export async function listCases(opts?: { search?: string; status?: string }) {
   if (opts?.status) {
     q = q.eq('internal_status', opts.status);
   }
+  if (opts?.priority) {
+    q = q.eq('priority', opts.priority);
+  }
+  if (opts?.caseTypeId) {
+    q = q.eq('case_type_id', opts.caseTypeId);
+  }
+  if (opts?.dentistId) {
+    q = q.eq('dentist_id', opts.dentistId);
+  }
 
   const { data, error } = await q;
   if (error) throw new Error(error.message);
-  return (data ?? []) as unknown as (Pick<
+  const rows = (data ?? []) as unknown as (Pick<
     CaseRow,
     'id' | 'case_number' | 'title' | 'priority' | 'internal_status' |
     'public_status' | 'health_score' | 'missing_required_items_count' |
@@ -76,6 +94,25 @@ export async function listCases(opts?: { search?: string; status?: string }) {
     clinic: { id: string; trade_name: string } | null;
     case_type: { id: string; name: string } | null;
   })[];
+
+  // SLA filter is post-processing (calcSla is not SQL-side)
+  if (opts?.slaBucket) {
+    // Late import to avoid circular
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { calcSla } = require('./sla');
+    return rows.filter((c) => {
+      const sla = calcSla({
+        requestedDeliveryDate: c.requested_delivery_date,
+        estimatedDeliveryDate: c.estimated_delivery_date,
+        actualDeliveryDate: c.actual_delivery_date,
+        internalStatus: c.internal_status
+      });
+      if (opts.slaBucket === 'delivered') return sla.status === 'delivered_ok' || sla.status === 'delivered_late';
+      return sla.status === opts.slaBucket;
+    });
+  }
+
+  return rows;
 }
 
 export async function getCase(id: string) {
