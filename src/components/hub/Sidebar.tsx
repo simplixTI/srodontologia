@@ -28,9 +28,9 @@ const groups = [
     label: 'Operação',
     items: [
       { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-      { href: '/crm',       icon: Users,           label: 'CRM',        disabled: true },
-      { href: '/dentistas', icon: UserCircle2,     label: 'Dentistas',  disabled: true },
-      { href: '/clinicas',  icon: Building2,       label: 'Clínicas',   disabled: true },
+      { href: '/leads',     icon: Users,           label: 'CRM' },
+      { href: '/dentistas', icon: UserCircle2,     label: 'Dentistas' },
+      { href: '/clinicas',  icon: Building2,       label: 'Clínicas' },
       { href: '/casos',     icon: Briefcase,       label: 'Casos',      disabled: true }
     ]
   },
