@@ -16,7 +16,8 @@ import {
   BarChart3,
   Settings,
   UserCircle2,
-  PanelLeft
+  PanelLeft,
+  CheckSquare
 } from 'lucide-react';
 import { NavItem } from './NavItem';
 import { LogoLockup } from '@/components/ui/Logo';
@@ -53,8 +54,9 @@ const groups = [
   {
     label: 'Sistema',
     items: [
-      { href: '/usuarios',      icon: Users,    label: 'Usuários',      disabled: true },
-      { href: '/configuracoes', icon: Settings, label: 'Configurações', disabled: true }
+      { href: '/checklists',    icon: CheckSquare, label: 'Checklists' },
+      { href: '/usuarios',      icon: Users,       label: 'Usuários',      disabled: true },
+      { href: '/configuracoes', icon: Settings,    label: 'Configurações', disabled: true }
     ]
   }
 ];
