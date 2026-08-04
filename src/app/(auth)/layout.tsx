@@ -25,7 +25,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <footer className="mt-10 text-center text-[0.55rem] uppercase tracking-[0.35em] text-white/30">
-          SR HUB · Digital Implant Center
+          SR HUB · SR Digital Center
         </footer>
       </div>
     </main>

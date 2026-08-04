@@ -27,24 +27,24 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.name} — ${SITE.positioning} | Implantodontia Digital`,
+    default: `${SITE.name} — ${SITE.positioning} | Laboratório CAD/CAM`,
     template: `%s · ${SITE.name}`
   },
   description:
-    'SR Digital é um Digital Implant Center. Planejamento digital, CAD/CAM, impressão 3D e fresagem de alta precisão para reabilitações implantossuportadas previsíveis.',
+    'SR Digital é um laboratório de prótese odontológica CAD/CAM com fluxo 100% digital. Também atua como Planning Center para cirurgia guiada, carga imediata e reabilitações sobre implantes.',
   keywords: [
-    'Digital Implant Center',
-    'Implantodontia Digital',
-    'Planejamento Digital',
-    'CAD/CAM',
+    'SR Digital Center',
+    'Laboratório CAD/CAM',
+    'Prótese odontológica digital',
+    'Planning Center',
+    'Cirurgia Guiada',
+    'Carga imediata',
+    'Reabilitação sobre implantes',
     'Impressão 3D odontológica',
     'Fresagem',
-    'Cirurgia Guiada',
     'Escaneamento Intraoral',
     'SR Digital',
-    'SR Odontologia Digital',
-    'Prótese sobre implante',
-    'Reabilitação oral'
+    'SR Odontologia Digital'
   ],
   authors: [{ name: SITE.name }],
   creator: SITE.name,
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'SR Digital — Digital Implant Center'
+        alt: 'SR Digital — SR Digital Center'
       }
     ]
   },
@@ -96,7 +96,7 @@ const jsonLd = {
   name: SITE.name,
   alternateName: 'SR Odontologia Digital',
   description:
-    'Digital Implant Center: planejamento digital, CAD/CAM, impressão 3D e fresagem para reabilitações implantossuportadas.',
+    'SR Digital Center: laboratório CAD/CAM + Planning Center para cirurgia guiada, carga imediata e reabilitações sobre implantes.',
   url: SITE.url,
   telephone: SITE.whatsappDisplay,
   email: SITE.email,

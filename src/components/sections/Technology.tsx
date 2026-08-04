@@ -29,16 +29,16 @@ const techs: Tech[] = [
   },
   {
     icon: Layers3,
-    title: 'Impressão 3D',
+    title: 'Impressão 3D de Alta Performance',
     description:
-      'Resinas certificadas para modelos, guias, provas e provisórios de alta fidelidade.',
-    spec: 'Camadas 25 – 50 µm'
+      'Impressoras Formlabs e SprintRay, referências mundiais em odontologia digital, para produzir modelos, guias cirúrgicos e próteses provisórias com alta precisão.',
+    spec: 'Formlabs · SprintRay'
   },
   {
     icon: Cog,
-    title: 'Fresagem',
+    title: 'Fresagem 5 eixos',
     description:
-      'Fresagem 5 eixos em zircônia, PMMA, metal e cerâmica de alta densidade.',
+      'Tecnologia de fresagem em 5 eixos para manufatura de diversos materiais odontológicos, incluindo zircônia, PMMA, dissilicato de lítio, metal, cera e Zantex® — garantindo precisão e excelente acabamento.',
     spec: 'Precisão ±20 µm'
   },
   {
@@ -53,7 +53,7 @@ const techs: Tech[] = [
     title: 'Softwares Especializados',
     description:
       'Ecossistema integrado com os principais softwares de planejamento cirúrgico e protético.',
-    spec: 'exocad · 3Shape · Blue Sky'
+    spec: 'exocad · implant studio · exoplan'
   },
   {
     icon: Boxes,
@@ -129,7 +129,7 @@ function TechCard({ tech, index }: { tech: Tech; index: number }) {
           />
         </div>
         <span className="rounded-full border border-white/10 px-3 py-1 text-[0.55rem] uppercase tracking-[0.28em] text-white/50">
-          {tech.spec}
+          {renderSpec(tech.spec)}
         </span>
       </div>
 
@@ -145,5 +145,21 @@ function TechCard({ tech, index }: { tech: Tech; index: number }) {
         Padrão SR
       </div>
     </motion.article>
+  );
+}
+
+// The CSS `text-transform: uppercase` maps µ (U+00B5) → Μ (Greek Mu), which
+// renders visually as "M" — turning "µm" into "MM". We split the string and
+// re-render the µm portion with `normal-case` to preserve it as intended.
+function renderSpec(spec: string): React.ReactNode {
+  const parts = spec.split(/(µm)/g);
+  return parts.map((p, i) =>
+    p === 'µm' ? (
+      <span key={i} className="normal-case">
+        µm
+      </span>
+    ) : (
+      <span key={i}>{p}</span>
+    )
   );
 }

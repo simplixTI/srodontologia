@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const SITE = {
   name: 'SR Digital',
-  positioning: 'Digital Implant Center',
+  positioning: 'SR Digital Center',
   tagline: 'Precisão Digital para Reabilitações Implantossuportadas',
   manifesto: 'Mais do que fabricar próteses. Planejamos resultados.',
   url: 'https://srdigital.com.br',

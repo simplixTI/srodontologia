@@ -6,6 +6,7 @@ import {
   Cpu,
   MessagesSquare,
   Printer,
+  Sparkles,
   ShieldCheck,
   Package,
   type LucideIcon
@@ -24,14 +25,14 @@ const steps: Step[] = [
     icon: Inbox,
     title: 'Recebimento do Caso',
     description:
-      'Recebimento do arquivo intraoral, exames e briefing clínico para análise inicial.',
-    meta: 'Escaneamento / Fotos / Tomografia'
+      'Recebimento dos arquivos do escaneamento intraoral (STL / PLY / OBJ), DICOM e fotos e briefing clínico para análise inicial.',
+    meta: 'Escaneamento · DICOM · Fotos'
   },
   {
     icon: Cpu,
     title: 'Planejamento Digital',
     description:
-      'Planejamento reverso do caso em softwares especializados por implantodontistas e protesistas.',
+      'Planejamento dos casos em softwares especializados em próteses e cirurgia guiada, realizados por dentistas implantodontistas e protesistas.',
     meta: 'Software CAD · Planejamento Guiado'
   },
   {
@@ -43,10 +44,17 @@ const steps: Step[] = [
   },
   {
     icon: Printer,
-    title: 'Produção CAD/CAM',
+    title: 'Produção CAM',
     description:
       'Fresagem e impressão 3D com controle micrométrico. Materiais premium e ajuste passivo.',
     meta: 'Fresagem · Impressão 3D · Sinterização'
+  },
+  {
+    icon: Sparkles,
+    title: 'Finalização Artesanal',
+    description:
+      'Acabamento manual realizado por uma equipe especializada de ceramistas experientes, garantindo excelência estética, textura, caracterização e naturalidade em cada peça.',
+    meta: 'Ceramistas · Caracterização · Textura'
   },
   {
     icon: ShieldCheck,
@@ -84,7 +92,7 @@ export function HowItWorks() {
               Do briefing ao <span className="gold-text">resultado final.</span>
             </>
           }
-          description="Um fluxo cadenciado, transparente e cadenciado — sem retrabalhos, sem surpresas."
+          description="Um fluxo cadenciado, transparente e previsível — sem retrabalhos, sem surpresas."
         />
 
         <div className="relative mt-24">

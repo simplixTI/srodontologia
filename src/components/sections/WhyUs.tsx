@@ -43,7 +43,7 @@ const cards: Card[] = [
     icon: LifeBuoy,
     title: 'Suporte ao Dentista',
     description:
-      'Acompanhamento técnico do planejamento cirúrgico até a instalação definitiva.',
+      'Acompanhamento técnico do planejamento cirúrgico até a instalação da prótese definitiva.',
     index: '04'
   }
 ];

@@ -6,7 +6,7 @@ import { Check } from 'lucide-react';
 const pillars = [
   {
     title: 'Redução de ajustes clínicos',
-    body: 'Casos entregues com ajuste passivo e adaptação verificada em ambiente digital.'
+    body: 'Casos entregues com precisão de adaptação e previsibilidade do planejamento digital.'
   },
   {
     title: 'Maior segurança para o dentista',
@@ -56,9 +56,10 @@ export function Differential() {
               transition={{ duration: 0.9, delay: 0.2 }}
               className="mt-8 max-w-lg text-lg leading-relaxed text-white/60"
             >
-              Seu parceiro em Implantodontia Digital. Um Digital Implant Center
-              construído para quem trata reabilitações como projetos técnicos —
-              não como produtos de prateleira.
+              Seu parceiro em Odontologia Digital. Um Planning Center e
+              Laboratório de Prótese Digital desenvolvido para atender todas
+              as especialidades odontológicas, transformando cada caso em um
+              projeto técnico com previsibilidade, precisão e excelência.
             </motion.p>
 
             {/* Signature block */}

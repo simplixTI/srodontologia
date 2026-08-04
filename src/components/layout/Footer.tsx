@@ -40,7 +40,7 @@ export function Footer() {
           <div>
             <LogoLockup width={160} />
             <div className="mt-3 text-[0.55rem] tracking-[0.4em] text-white/40">
-              DIGITAL · IMPLANT · CENTER
+              SR · DIGITAL · CENTER
             </div>
 
             <p className="mt-6 max-w-md text-sm leading-relaxed text-white/60">

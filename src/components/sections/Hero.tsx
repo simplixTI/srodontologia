@@ -74,7 +74,7 @@ export function Hero() {
           >
             <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold/70" />
             <span className="text-[0.6rem] uppercase tracking-[0.42em] text-gold-100">
-              Digital Implant Center
+              SR Digital Center
             </span>
             <span className="hidden text-[0.55rem] uppercase tracking-[0.35em] text-white/40 md:inline">
               · Belo Horizonte · MG
