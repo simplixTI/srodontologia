@@ -1,17 +1,21 @@
 'use client';
 
 import { useState, useTransition, useRef, useEffect } from 'react';
-import { CheckCircle2, Circle, ShieldCheck, Save, Loader2, Clock } from 'lucide-react';
+import { CheckCircle2, Circle, ShieldCheck, Save, Loader2, Clock, Paperclip } from 'lucide-react';
 import type { CaseWithRelations, CaseChecklistItem, StatusHistoryEntry } from '@/features/cases/queries';
 import { autosaveCaseAction, toggleChecklistItemAction } from '@/features/cases/actions';
 import { PUBLIC_STATUS_LABELS, CASE_PRIORITIES, CASE_PRIORITY_LABELS } from '@/lib/validations/cases';
+import { FilesTab } from './FilesTab';
+import type { CaseFile } from '@/features/files/queries';
 
-type Tab = 'details' | 'checklist' | 'timeline';
+type Tab = 'details' | 'checklist' | 'files' | 'timeline';
 
 export function CaseTabs({
   caseRow,
   checklist,
   timeline,
+  files,
+  filesPerItem,
   dentists,
   clinics,
   caseTypes
@@ -19,20 +23,27 @@ export function CaseTabs({
   caseRow: CaseWithRelations;
   checklist: CaseChecklistItem[];
   timeline: StatusHistoryEntry[];
+  files: CaseFile[];
+  filesPerItem: Map<string, number>;
   dentists: { id: string; full_name: string }[];
   clinics: { id: string; trade_name: string }[];
   caseTypes: { id: string; name: string }[];
 }) {
   const [tab, setTab] = useState<Tab>('details');
+  const readOnly = caseRow.internal_status !== 'draft';
 
   return (
     <section>
-      <nav className="flex gap-1 border-b border-gold/10">
+      <nav className="flex gap-1 overflow-x-auto border-b border-gold/10">
         <TabButton active={tab === 'details'} onClick={() => setTab('details')}>
           Detalhes
         </TabButton>
         <TabButton active={tab === 'checklist'} onClick={() => setTab('checklist')}>
           Checklist <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[0.5rem]">{checklist.length}</span>
+        </TabButton>
+        <TabButton active={tab === 'files'} onClick={() => setTab('files')}>
+          <Paperclip className="mr-1 inline h-3 w-3" strokeWidth={1.5} />
+          Arquivos <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[0.5rem]">{files.length}</span>
         </TabButton>
         <TabButton active={tab === 'timeline'} onClick={() => setTab('timeline')}>
           Timeline
@@ -49,7 +60,20 @@ export function CaseTabs({
           />
         )}
         {tab === 'checklist' && (
-          <ChecklistPanel caseId={caseRow.id} items={checklist} readOnly={caseRow.internal_status !== 'draft'} />
+          <ChecklistPanel
+            caseId={caseRow.id}
+            items={checklist}
+            filesPerItem={filesPerItem}
+            readOnly={readOnly}
+          />
+        )}
+        {tab === 'files' && (
+          <FilesTab
+            caseId={caseRow.id}
+            initialFiles={files}
+            checklistItems={checklist}
+            readOnly={readOnly}
+          />
         )}
         {tab === 'timeline' && <TimelinePanel entries={timeline} />}
       </div>
@@ -269,10 +293,12 @@ function DetailsPanel({
 function ChecklistPanel({
   caseId,
   items,
+  filesPerItem,
   readOnly
 }: {
   caseId: string;
   items: CaseChecklistItem[];
+  filesPerItem: Map<string, number>;
   readOnly: boolean;
 }) {
   const [pending, startTransition] = useTransition();
@@ -359,18 +385,19 @@ function ChecklistPanel({
                 <p className="mt-1 text-xs text-white/50">{item.description_snapshot}</p>
               )}
               {item.accepted_file_types_snapshot?.length > 0 && (
-                <div className="mt-1 text-[0.55rem] uppercase tracking-[0.25em] text-white/35">
-                  formatos: {item.accepted_file_types_snapshot.join(', ')} · min {item.minimum_files_snapshot}
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-[0.55rem] uppercase tracking-[0.25em] text-white/35">
+                  <span>formatos: {item.accepted_file_types_snapshot.join(', ')} · min {item.minimum_files_snapshot}</span>
+                  {(filesPerItem.get(item.id) ?? 0) > 0 && (
+                    <span className="rounded-full border border-gold/25 bg-gold/10 px-2 py-0.5 text-gold-100">
+                      {filesPerItem.get(item.id)} arquivo{filesPerItem.get(item.id)! > 1 ? 's' : ''}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
           </li>
         ))}
       </ul>
-
-      <p className="text-[0.6rem] uppercase tracking-[0.28em] text-white/30">
-        Upload de arquivos vinculados a itens do checklist chega na próxima tranche.
-      </p>
     </div>
   );
 }

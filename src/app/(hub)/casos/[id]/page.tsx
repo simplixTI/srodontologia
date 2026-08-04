@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, UserCircle2, Building2, Briefcase, Calendar, Clock } from 'lucide-react';
 import { getCase, getCaseTimeline, listCaseChecklist, listDentistsForSelect, listCaseTypesForSelect } from '@/features/cases/queries';
+import { listCaseFiles, countFilesPerChecklistItem } from '@/features/files/queries';
 import { listClinicsForSelect } from '@/features/dentists/queries';
 import { CaseTabs } from './CaseTabs';
 import { HealthScore } from './HealthScore';
@@ -24,11 +25,13 @@ export default async function CaseDetailPage({
 }: {
   params: { id: string };
 }) {
-  const [caseRow, timeline, checklist, dentists, clinics, caseTypes] =
+  const [caseRow, timeline, checklist, files, filesPerItem, dentists, clinics, caseTypes] =
     await Promise.all([
       getCase(params.id),
       getCaseTimeline(params.id),
       listCaseChecklist(params.id),
+      listCaseFiles(params.id),
+      countFilesPerChecklistItem(params.id),
       listDentistsForSelect(),
       listClinicsForSelect(),
       listCaseTypesForSelect()
@@ -125,6 +128,8 @@ export default async function CaseDetailPage({
         caseRow={caseRow}
         checklist={checklist}
         timeline={timeline}
+        files={files}
+        filesPerItem={filesPerItem}
         dentists={dentists}
         clinics={clinics}
         caseTypes={caseTypes}
