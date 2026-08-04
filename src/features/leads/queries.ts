@@ -38,3 +38,37 @@ export async function listLeads() {
   if (error) throw new Error(error.message);
   return (data ?? []) as Lead[];
 }
+
+export async function getLead(id: string) {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle<Lead>();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export type LeadActivity = {
+  id: string;
+  activity_type: string;
+  title: string;
+  description: string | null;
+  result: string | null;
+  completed_at: string | null;
+  created_at: string;
+  user: { id: string; full_name: string } | null;
+};
+
+export async function getLeadActivities(leadId: string) {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('lead_activities')
+    .select('id, activity_type, title, description, result, completed_at, created_at, user:profiles!user_id(id, full_name)')
+    .eq('lead_id', leadId)
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as LeadActivity[];
+}
