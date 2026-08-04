@@ -100,12 +100,17 @@ export function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.05, duration: 0.9 }}
-            className="mt-10 max-w-xl text-base leading-relaxed text-white/60 md:text-lg"
+            className="mt-10 max-w-2xl text-justify text-base leading-relaxed text-white/60 hyphens-auto md:text-lg"
           >
-            Um Digital Implant Center especializado em reabilitações
-            implantossuportadas. Planejamento clínico, CAD/CAM, impressão 3D
-            e fresagem em um único fluxo — para casos previsíveis do briefing
-            à entrega definitiva.
+            A <span className="text-white">SR Digital</span> é um laboratório
+            de prótese odontológica especializado em <span className="text-white">CAD/CAM</span>
+            {' '}e fluxo <span className="text-white">100% digital</span>.
+            Desenvolvemos próteses com alta precisão por meio de desenho digital
+            (CAD), impressão 3D e fresagem (CAM). Também atuamos como
+            {' '}<span className="text-white">Planning Center</span>, realizando
+            planejamentos digitais para cirurgia guiada, carga imediata e
+            reabilitações sobre implantes — oferecendo soluções completas para
+            clínicas e consultórios com previsibilidade, tecnologia e excelência.
           </motion.p>
 
           {/* CTAs */}
