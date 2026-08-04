@@ -5,6 +5,10 @@ import { ArrowLeft, UserCircle2, Building2, Briefcase, Calendar, Clock } from 'l
 import { getCase, getCaseTimeline, listCaseChecklist, listDentistsForSelect, listCaseTypesForSelect } from '@/features/cases/queries';
 import { listCaseFiles, countFilesPerChecklistItem } from '@/features/files/queries';
 import { listClinicsForSelect } from '@/features/dentists/queries';
+import { listCaseMessages } from '@/features/messages/queries';
+import { listCaseQuotes } from '@/features/quotes/queries';
+import { listCasePlanning } from '@/features/planning/queries';
+import { listCaseDeliveries } from '@/features/deliveries/queries';
 import { CaseTabs } from './CaseTabs';
 import { HealthScore } from './HealthScore';
 import { PUBLIC_STATUS_LABELS, CASE_PRIORITY_LABELS, type CasePriority } from '@/lib/validations/cases';
@@ -25,17 +29,25 @@ export default async function CaseDetailPage({
 }: {
   params: { id: string };
 }) {
-  const [caseRow, timeline, checklist, files, filesPerItem, dentists, clinics, caseTypes] =
-    await Promise.all([
-      getCase(params.id),
-      getCaseTimeline(params.id),
-      listCaseChecklist(params.id),
-      listCaseFiles(params.id),
-      countFilesPerChecklistItem(params.id),
-      listDentistsForSelect(),
-      listClinicsForSelect(),
-      listCaseTypesForSelect()
-    ]);
+  const [
+    caseRow, timeline, checklist,
+    files, filesPerItem,
+    messages, quotes, planning, deliveries,
+    dentists, clinics, caseTypes
+  ] = await Promise.all([
+    getCase(params.id),
+    getCaseTimeline(params.id),
+    listCaseChecklist(params.id),
+    listCaseFiles(params.id),
+    countFilesPerChecklistItem(params.id),
+    listCaseMessages(params.id),
+    listCaseQuotes(params.id),
+    listCasePlanning(params.id),
+    listCaseDeliveries(params.id),
+    listDentistsForSelect(),
+    listClinicsForSelect(),
+    listCaseTypesForSelect()
+  ]);
   if (!caseRow) notFound();
 
   const isDraft = caseRow.internal_status === 'draft';
@@ -130,6 +142,10 @@ export default async function CaseDetailPage({
         timeline={timeline}
         files={files}
         filesPerItem={filesPerItem}
+        messages={messages}
+        quotes={quotes}
+        planning={planning}
+        deliveries={deliveries}
         dentists={dentists}
         clinics={clinics}
         caseTypes={caseTypes}

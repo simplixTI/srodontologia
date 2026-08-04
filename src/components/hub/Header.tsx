@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, ChevronDown, LogOut, User, type LucideIcon } from 'lucide-react';
+import { Search, ChevronDown, LogOut, User, type LucideIcon } from 'lucide-react';
 import { logoutAction } from '@/features/auth/actions/logout';
 import { ROLE_LABELS } from '@/lib/permissions/roles';
 import type { UserRole } from '@/types/database';
+import { NotificationsBell } from './NotificationsBell';
+import type { Notification } from '@/features/notifications/queries';
 
 type Props = {
   user: {
@@ -13,9 +15,11 @@ type Props = {
     role: UserRole;
     avatar_url: string | null;
   };
+  notifications: Notification[];
+  unread: number;
 };
 
-export function Header({ user }: Props) {
+export function Header({ user, notifications, unread }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -50,13 +54,7 @@ export function Header({ user }: Props) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-gold/15 text-white/70 transition hover:border-gold/40 hover:text-gold-100"
-          aria-label="Notificações"
-        >
-          <Bell className="h-4 w-4" strokeWidth={1.5} />
-          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-gold-300" />
-        </button>
+        <NotificationsBell initialNotifications={notifications} initialUnread={unread} />
 
         <div ref={menuRef} className="relative">
           <button

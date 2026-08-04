@@ -5,6 +5,7 @@ import { INTERNAL_ROLES } from '@/lib/permissions/roles';
 import { Sidebar } from '@/components/hub/Sidebar';
 import { Header } from '@/components/hub/Header';
 import { NotConfiguredScreen } from '@/components/hub/NotConfiguredScreen';
+import { listMyNotifications, countMyUnread } from '@/features/notifications/queries';
 import type { UserRole } from '@/types/database';
 
 export const dynamic = 'force-dynamic';
@@ -50,6 +51,11 @@ export default async function HubLayout({
     redirect('/portal');
   }
 
+  const [notifications, unread] = await Promise.all([
+    listMyNotifications(20),
+    countMyUnread()
+  ]);
+
   return (
     <div className="flex min-h-[100svh] bg-black text-white">
       <Sidebar />
@@ -61,6 +67,8 @@ export default async function HubLayout({
             role: profile.role as UserRole,
             avatar_url: profile.avatar_url
           }}
+          notifications={notifications}
+          unread={unread}
         />
         <main className="flex-1 overflow-x-hidden">{children}</main>
       </div>

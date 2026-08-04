@@ -1,14 +1,21 @@
 'use client';
 
 import { useState, useTransition, useRef, useEffect } from 'react';
-import { CheckCircle2, Circle, ShieldCheck, Save, Loader2, Clock, Paperclip } from 'lucide-react';
+import { CheckCircle2, Circle, ShieldCheck, Save, Loader2, Clock, Paperclip, MessageSquare, FileSpreadsheet, ClipboardList, Truck } from 'lucide-react';
 import type { CaseWithRelations, CaseChecklistItem, StatusHistoryEntry } from '@/features/cases/queries';
 import { autosaveCaseAction, toggleChecklistItemAction } from '@/features/cases/actions';
 import { PUBLIC_STATUS_LABELS, CASE_PRIORITIES, CASE_PRIORITY_LABELS } from '@/lib/validations/cases';
 import { FilesTab } from './FilesTab';
+import { MessagesTab } from './MessagesTab';
+import { DeliveriesTab } from './DeliveriesTab';
+import { QuotesTab, PlanningTab } from './WorkflowsTabs';
 import type { CaseFile } from '@/features/files/queries';
+import type { CaseMessage } from '@/features/messages/queries';
+import type { Delivery } from '@/features/deliveries/types';
+import type { Quote } from '@/features/quotes/types';
+import type { PlanningVersion } from '@/features/planning/types';
 
-type Tab = 'details' | 'checklist' | 'files' | 'timeline';
+type Tab = 'details' | 'checklist' | 'files' | 'messages' | 'quotes' | 'planning' | 'deliveries' | 'timeline';
 
 export function CaseTabs({
   caseRow,
@@ -16,6 +23,10 @@ export function CaseTabs({
   timeline,
   files,
   filesPerItem,
+  messages,
+  quotes,
+  planning,
+  deliveries,
   dentists,
   clinics,
   caseTypes
@@ -25,6 +36,10 @@ export function CaseTabs({
   timeline: StatusHistoryEntry[];
   files: CaseFile[];
   filesPerItem: Map<string, number>;
+  messages: CaseMessage[];
+  quotes: Quote[];
+  planning: PlanningVersion[];
+  deliveries: Delivery[];
   dentists: { id: string; full_name: string }[];
   clinics: { id: string; trade_name: string }[];
   caseTypes: { id: string; name: string }[];
@@ -44,6 +59,22 @@ export function CaseTabs({
         <TabButton active={tab === 'files'} onClick={() => setTab('files')}>
           <Paperclip className="mr-1 inline h-3 w-3" strokeWidth={1.5} />
           Arquivos <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[0.5rem]">{files.length}</span>
+        </TabButton>
+        <TabButton active={tab === 'messages'} onClick={() => setTab('messages')}>
+          <MessageSquare className="mr-1 inline h-3 w-3" strokeWidth={1.5} />
+          Mensagens <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[0.5rem]">{messages.length}</span>
+        </TabButton>
+        <TabButton active={tab === 'quotes'} onClick={() => setTab('quotes')}>
+          <FileSpreadsheet className="mr-1 inline h-3 w-3" strokeWidth={1.5} />
+          Orçamento <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[0.5rem]">{quotes.length}</span>
+        </TabButton>
+        <TabButton active={tab === 'planning'} onClick={() => setTab('planning')}>
+          <ClipboardList className="mr-1 inline h-3 w-3" strokeWidth={1.5} />
+          Planejamento <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[0.5rem]">{planning.length}</span>
+        </TabButton>
+        <TabButton active={tab === 'deliveries'} onClick={() => setTab('deliveries')}>
+          <Truck className="mr-1 inline h-3 w-3" strokeWidth={1.5} />
+          Entrega <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[0.5rem]">{deliveries.length}</span>
         </TabButton>
         <TabButton active={tab === 'timeline'} onClick={() => setTab('timeline')}>
           Timeline
@@ -74,6 +105,18 @@ export function CaseTabs({
             checklistItems={checklist}
             readOnly={readOnly}
           />
+        )}
+        {tab === 'messages' && (
+          <MessagesTab caseId={caseRow.id} initialMessages={messages} />
+        )}
+        {tab === 'quotes' && (
+          <QuotesTab caseId={caseRow.id} quotes={quotes} />
+        )}
+        {tab === 'planning' && (
+          <PlanningTab caseId={caseRow.id} versions={planning} />
+        )}
+        {tab === 'deliveries' && (
+          <DeliveriesTab caseId={caseRow.id} initialDeliveries={deliveries} />
         )}
         {tab === 'timeline' && <TimelinePanel entries={timeline} />}
       </div>
