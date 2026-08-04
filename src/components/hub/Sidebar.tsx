@@ -2,66 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import {
-  LayoutDashboard,
-  Users,
-  Building2,
-  Briefcase,
-  ClipboardList,
-  Cog,
-  DollarSign,
-  Truck,
-  Calendar,
-  FolderOpen,
-  BarChart3,
-  Settings,
-  UserCircle2,
-  PanelLeft,
-  CheckSquare,
-  Shield
-} from 'lucide-react';
+import { PanelLeft } from 'lucide-react';
 import { NavItem } from './NavItem';
 import { LogoLockup } from '@/components/ui/Logo';
+import { NAV_GROUPS } from './nav-groups';
 import { cn } from '@/lib/utils';
-
-const groups = [
-  {
-    label: 'Operação',
-    items: [
-      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-      { href: '/leads',     icon: Users,           label: 'CRM' },
-      { href: '/dentistas', icon: UserCircle2,     label: 'Dentistas' },
-      { href: '/clinicas',  icon: Building2,       label: 'Clínicas' },
-      { href: '/casos',     icon: Briefcase,       label: 'Casos' }
-    ]
-  },
-  {
-    label: 'Fluxo',
-    items: [
-      { href: '/planejamento', icon: ClipboardList, label: 'Planejamento', disabled: true },
-      { href: '/producao',     icon: Cog,           label: 'Produção',     disabled: true },
-      { href: '/financeiro',   icon: DollarSign,    label: 'Financeiro',   disabled: true },
-      { href: '/entregas',     icon: Truck,         label: 'Entregas',     disabled: true }
-    ]
-  },
-  {
-    label: 'Estúdio',
-    items: [
-      { href: '/agenda',     icon: Calendar,   label: 'Agenda',     disabled: true },
-      { href: '/arquivos',   icon: FolderOpen, label: 'Arquivos',   disabled: true },
-      { href: '/relatorios', icon: BarChart3,  label: 'Relatórios', disabled: true }
-    ]
-  },
-  {
-    label: 'Sistema',
-    items: [
-      { href: '/checklists',    icon: CheckSquare, label: 'Checklists' },
-      { href: '/audit',         icon: Shield,      label: 'Auditoria' },
-      { href: '/usuarios',      icon: Users,       label: 'Usuários',      disabled: true },
-      { href: '/configuracoes', icon: Settings,    label: 'Configurações', disabled: true }
-    ]
-  }
-];
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -96,7 +41,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-6">
-        {groups.map((g) => (
+        {NAV_GROUPS.map((g) => (
           <div key={g.label} className="space-y-1">
             {!collapsed && (
               <div className="px-3 pb-2 text-[0.55rem] uppercase tracking-[0.35em] text-white/30">
@@ -117,7 +62,7 @@ export function Sidebar() {
             collapsed && 'text-center'
           )}
         >
-          {collapsed ? 'v0.1' : 'SR HUB · v0.1 · Phase 1'}
+          {collapsed ? 'v0.1' : 'SR HUB · v0.1'}
         </div>
       </div>
     </aside>

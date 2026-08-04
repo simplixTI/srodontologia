@@ -7,6 +7,7 @@ import { ROLE_LABELS } from '@/lib/permissions/roles';
 import type { UserRole } from '@/types/database';
 import { NotificationsBell } from './NotificationsBell';
 import { CommandPalette } from './CommandPalette';
+import { MobileNav } from './MobileNav';
 import type { Notification } from '@/features/notifications/queries';
 
 type Props = {
@@ -42,10 +43,15 @@ export function Header({ user, notifications, unread }: Props) {
     .join('');
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-gold/10 bg-black/70 px-6 backdrop-blur">
+    <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-3 border-b border-gold/10 bg-black/70 px-4 backdrop-blur md:px-6">
       <CommandPalette />
-      {/* Search trigger */}
+
+      {/* Left cluster: mobile menu + search */}
       <div className="flex flex-1 items-center gap-3">
+        {/* Mobile hamburger — shows the full nav drawer */}
+        <MobileNav />
+
+        {/* Search trigger (hidden on mobile — Cmd+K works from anywhere) */}
         <button
           onClick={() =>
             window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
