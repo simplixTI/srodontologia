@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { assertRateLimit } from '@/lib/rate-limit';
 
 export type ActionState = { ok: boolean; error?: string };
 
@@ -30,6 +31,14 @@ export async function sendCaseMessageAction(
   if (message.length > 5000) return { ok: false, error: 'Mensagem muito longa.' };
 
   const { supabase, user, profile } = await requireInternal();
+
+  // 60 messages per minute per user
+  try {
+    assertRateLimit(`msg:${user.id}`, { max: 60, windowMs: 60_000, label: 'Mensagens' });
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+
   const { error } = await supabase.from('case_messages').insert({
     organization_id: profile.organization_id,
     case_id: caseId,

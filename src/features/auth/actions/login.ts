@@ -1,9 +1,11 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { loginSchema } from '@/lib/validations/auth';
 import { homeRouteForRole } from '@/lib/permissions/roles';
+import { rateLimit } from '@/lib/rate-limit';
 import type { UserRole } from '@/types/database';
 
 export type LoginState = {
@@ -22,6 +24,24 @@ export async function loginAction(
 
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? 'Dados inválidos.' };
+  }
+
+  // Rate limit: 8 tentativas por 5min por (IP + email) para desacelerar
+  // ataques de força bruta sem punir usuários reais que erram a senha.
+  const h = headers();
+  const ip =
+    h.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    h.get('x-real-ip') ??
+    'unknown';
+  const rl = rateLimit(`login:${ip}:${parsed.data.email}`, {
+    max: 8,
+    windowMs: 5 * 60_000
+  });
+  if (!rl.ok) {
+    return {
+      ok: false,
+      error: `Muitas tentativas. Tente novamente em ${rl.retryAfter}s.`
+    };
   }
 
   const supabase = createSupabaseServerClient();

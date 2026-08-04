@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { randomUUID } from 'node:crypto';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { assertRateLimit } from '@/lib/rate-limit';
 
 export type ActionState = { ok: boolean; error?: string; id?: string };
 
@@ -91,6 +92,13 @@ export async function uploadCaseFileAction(
   }
 
   const { supabase, user, profile } = await requireInternal();
+
+  // 30 uploads / 60s per user
+  try {
+    assertRateLimit(`upload:${user.id}`, { max: 30, windowMs: 60_000, label: 'Uploads' });
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 
   const category = guessCategory(ext);
   const cleanName = safeName(file.name);

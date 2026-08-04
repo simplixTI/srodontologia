@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useConfirm } from '@/components/ui/ConfirmDialog';
+import { maybeCompressImage } from '@/lib/image-compression';
 import {
   Upload,
   FileText,
@@ -60,8 +61,11 @@ export function FilesTab({
         { id: tempId, name: file.name, size: file.size, status: 'uploading' }
       ]);
 
+      // Best-effort image compression (only images ≥ 500KB)
+      const toUpload = await maybeCompressImage(file);
+
       const fd = new FormData();
-      fd.append('file', file);
+      fd.append('file', toUpload);
 
       // Try to auto-suggest a checklist item by extension
       const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
