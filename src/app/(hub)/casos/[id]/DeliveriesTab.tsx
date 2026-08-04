@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { Truck, Plus, ExternalLink, Copy } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Delivery, DeliveryStatus } from '@/features/deliveries/types';
 import { DELIVERY_STATUS_LABELS } from '@/features/deliveries/types';
 import { createDeliveryAction, updateDeliveryStatusAction } from '@/features/deliveries/actions';
@@ -49,8 +50,11 @@ export function DeliveriesTab({
   const changeStatus = (deliveryId: string, newStatus: DeliveryStatus) => {
     setDeliveries((prev) => prev.map((d) => (d.id === deliveryId ? { ...d, status: newStatus } : d)));
     startTransition(async () => {
-      try { await updateDeliveryStatusAction(deliveryId, caseId, newStatus); }
-      catch (e) { alert('Erro: ' + (e as Error).message); }
+      try {
+        await updateDeliveryStatusAction(deliveryId, caseId, newStatus);
+        toast.success('Status atualizado');
+      }
+      catch (e) { toast.error('Erro ao atualizar', { description: (e as Error).message }); }
     });
   };
 

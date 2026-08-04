@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from 'react';
 import { Send, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 import { submitCaseAction } from '@/features/cases/actions';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 
 function band(score: number) {
   if (score >= 90) return { label: 'Excelente', tone: 'emerald', hint: 'Pronto para enviar.' };
@@ -34,15 +36,24 @@ export function HealthScore({
   const b = band(score);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const confirm = useConfirm();
 
-  const doSubmit = () => {
-    if (!confirm('Enviar caso para análise? Após enviado, o rascunho não pode mais ser editado livremente.')) return;
+  const doSubmit = async () => {
+    const ok = await confirm({
+      title: 'Enviar caso para análise?',
+      description:
+        'Após enviado, o rascunho não pode mais ser editado livremente. A equipe interna assume o caso.',
+      confirmLabel: 'Enviar'
+    });
+    if (!ok) return;
     setError(null);
     startTransition(async () => {
       try {
         await submitCaseAction(caseId);
+        toast.success('Caso enviado para análise');
       } catch (e) {
         setError((e as Error).message);
+        toast.error('Não foi possível enviar', { description: (e as Error).message });
       }
     });
   };

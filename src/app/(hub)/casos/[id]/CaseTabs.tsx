@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect } from 'react';
 import { CheckCircle2, Circle, ShieldCheck, Save, Loader2, Clock, Paperclip, MessageSquare, FileSpreadsheet, ClipboardList, Truck } from 'lucide-react';
+import { toast } from 'sonner';
 import type { CaseWithRelations, CaseChecklistItem, StatusHistoryEntry } from '@/features/cases/queries';
 import { autosaveCaseAction, toggleChecklistItemAction } from '@/features/cases/actions';
 import { PUBLIC_STATUS_LABELS, CASE_PRIORITIES, CASE_PRIORITY_LABELS } from '@/lib/validations/cases';
@@ -369,7 +370,7 @@ function ChecklistPanel({
         setLocalItems((prev) =>
           prev.map((it) => (it.id === item.id ? { ...it, completed: !next, status: !next ? 'completed' : 'pending' } : it))
         );
-        alert('Erro: ' + (e as Error).message);
+        toast.error('Erro ao atualizar item', { description: (e as Error).message });
       }
     });
   };

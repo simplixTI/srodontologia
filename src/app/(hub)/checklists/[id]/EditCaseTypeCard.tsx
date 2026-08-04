@@ -2,6 +2,8 @@
 
 import { useFormState, useFormStatus } from 'react-dom';
 import { useState } from 'react';
+import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 import { Pencil, X, Trash2 } from 'lucide-react';
 import type { CaseType } from '@/features/checklists/queries';
 import {
@@ -105,22 +107,25 @@ function ActiveToggle({ id, active }: { id: string; active: boolean }) {
 
 function DeleteButton({ id }: { id: string }) {
   const [pending, setPending] = useState(false);
+  const confirm = useConfirm();
   return (
     <button
       disabled={pending}
       onClick={async () => {
-        if (
-          !confirm(
-            'Remover este tipo de caso? Todos os itens do checklist também serão apagados. Esta ação não pode ser desfeita.'
-          )
-        )
-          return;
+        const ok = await confirm({
+          title: 'Remover tipo de caso?',
+          description:
+            'Todos os itens do checklist deste tipo também serão apagados. Esta ação não pode ser desfeita.',
+          confirmLabel: 'Remover',
+          tone: 'danger'
+        });
+        if (!ok) return;
         setPending(true);
         try {
           await deleteCaseTypeAction(id);
         } catch (e) {
           setPending(false);
-          alert('Falha ao remover: ' + (e as Error).message);
+          toast.error('Falha ao remover', { description: (e as Error).message });
         }
       }}
       className="inline-flex h-9 items-center gap-2 rounded-full border border-rose-400/30 px-4 text-[0.6rem] uppercase tracking-[0.3em] text-rose-200 transition hover:bg-rose-400/10 disabled:opacity-50"

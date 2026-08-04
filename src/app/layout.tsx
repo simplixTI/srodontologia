@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Cormorant_Garamond } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './globals.css';
 import { SITE } from '@/lib/utils';
+import { ConfirmProvider } from '@/components/ui/ConfirmDialog';
 
 const sans = Inter({
   subsets: ['latin'],
@@ -125,7 +127,21 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <ConfirmProvider>{children}</ConfirmProvider>
+        <Toaster
+          position="top-right"
+          richColors
+          theme="dark"
+          toastOptions={{
+            style: {
+              background: '#0a0a0a',
+              border: '1px solid rgba(201, 162, 75, 0.2)',
+              color: '#fff'
+            }
+          }}
+        />
+      </body>
     </html>
   );
 }

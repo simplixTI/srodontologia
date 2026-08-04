@@ -6,6 +6,7 @@ import { MapPin, Phone, Instagram, MoreHorizontal } from 'lucide-react';
 import type { Lead } from '@/features/leads/queries';
 import { CUSTOMER_STATUS_LABELS, type CustomerStatus } from '@/lib/validations/dentists';
 import { statusColor } from '@/components/hub/crm/statusColors';
+import { toast } from 'sonner';
 import { updateLeadStageAction } from '@/features/leads/actions';
 
 const PIPELINE: CustomerStatus[] = [
@@ -58,12 +59,13 @@ export function LeadsKanban({ initialLeads }: { initialLeads: Lead[] }) {
     startTransition(async () => {
       try {
         await updateLeadStageAction(draggingId, stage);
+        toast.success('Etapa atualizada');
       } catch (e) {
         // Revert on error
         setLeads((prev) =>
           prev.map((l) => (l.id === draggingId ? { ...l, pipeline_stage: lead.pipeline_stage } : l))
         );
-        alert('Falha ao mover: ' + (e as Error).message);
+        toast.error('Falha ao mover', { description: (e as Error).message });
       }
     });
 

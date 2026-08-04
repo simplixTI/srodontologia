@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useTransition, useRef, useCallback } from 'react';
+import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 import {
   Upload,
   FileText,
@@ -48,6 +50,7 @@ export function FilesTab({
   const inputRef = useRef<HTMLInputElement>(null);
   const [, startTransition] = useTransition();
   const [preview, setPreview] = useState<{ url: string; name: string; kind: 'image' | 'pdf' | 'other' } | null>(null);
+  const confirm = useConfirm();
 
   const uploadOne = useCallback(
     async (file: File): Promise<void> => {
@@ -114,20 +117,28 @@ export function FilesTab({
     startTransition(async () => {
       try {
         await linkFileToChecklistItemAction(fileId, caseId, itemId || null);
+        toast.success('Arquivo vinculado');
       } catch (e) {
-        alert('Erro ao vincular: ' + (e as Error).message);
+        toast.error('Erro ao vincular', { description: (e as Error).message });
       }
     });
   };
 
-  const removeFile = (fileId: string) => {
-    if (!confirm('Remover este arquivo? Esta ação não pode ser desfeita.')) return;
+  const removeFile = async (fileId: string) => {
+    const ok = await confirm({
+      title: 'Remover arquivo?',
+      description: 'Esta ação não pode ser desfeita. O arquivo será excluído do storage.',
+      confirmLabel: 'Remover',
+      tone: 'danger'
+    });
+    if (!ok) return;
     setFiles((prev) => prev.filter((f) => f.id !== fileId));
     startTransition(async () => {
       try {
         await deleteCaseFileAction(fileId, caseId);
+        toast.success('Arquivo removido');
       } catch (e) {
-        alert('Erro: ' + (e as Error).message);
+        toast.error('Erro ao remover', { description: (e as Error).message });
         window.location.reload();
       }
     });
@@ -136,7 +147,7 @@ export function FilesTab({
   const download = async (fileId: string, name: string, ext: string | null) => {
     const url = await getSignedFileUrlAction(fileId, 120);
     if (!url) {
-      alert('Não foi possível gerar link de download.');
+      toast.error('Não foi possível gerar link de download');
       return;
     }
     // Open new tab

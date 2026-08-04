@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, UserCircle2, Building2, Briefcase, Calendar, Clock } from 'lucide-react';
+import { UserCircle2, Building2, Briefcase, Calendar, Clock } from 'lucide-react';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { getCase, getCaseTimeline, listCaseChecklist, listDentistsForSelect, listCaseTypesForSelect } from '@/features/cases/queries';
 import { listCaseFiles, countFilesPerChecklistItem } from '@/features/files/queries';
 import { listClinicsForSelect } from '@/features/dentists/queries';
@@ -54,13 +54,13 @@ export default async function CaseDetailPage({
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10 md:px-10">
-      <Link
-        href="/casos"
-        className="group inline-flex items-center gap-2 self-start text-[0.65rem] uppercase tracking-[0.32em] text-white/60 transition hover:text-gold-100"
-      >
-        <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-0.5" />
-        Todos os casos
-      </Link>
+      <Breadcrumbs
+        items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Casos', href: '/casos' },
+          { label: caseRow.case_number }
+        ]}
+      />
 
       <header className="flex flex-col gap-4">
         <div className="flex items-center gap-3">

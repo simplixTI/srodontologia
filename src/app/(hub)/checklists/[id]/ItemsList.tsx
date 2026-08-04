@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
+import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 import {
   ChevronUp,
   ChevronDown,
@@ -62,13 +64,14 @@ function ItemRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [pending, setPending] = useState(false);
+  const confirm = useConfirm();
 
   const busy = async (fn: () => Promise<unknown>) => {
     setPending(true);
     try {
       await fn();
     } catch (e) {
-      alert('Falha: ' + (e as Error).message);
+      toast.error('Falha na operação', { description: (e as Error).message });
     } finally {
       setPending(false);
     }
@@ -189,10 +192,15 @@ function ItemRow({
 
         <button
           disabled={pending}
-          onClick={() =>
-            confirm('Remover este item?') &&
-            busy(() => deleteTemplateItemAction(item.id, item.case_type_id))
-          }
+          onClick={async () => {
+            const ok = await confirm({
+              title: 'Remover item do checklist?',
+              description: `"${item.title}" será removido deste tipo de caso.`,
+              confirmLabel: 'Remover',
+              tone: 'danger'
+            });
+            if (ok) busy(() => deleteTemplateItemAction(item.id, item.case_type_id));
+          }}
           aria-label="Remover"
           className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-white/60 transition hover:border-rose-400/40 hover:bg-rose-400/10 hover:text-rose-200 disabled:opacity-50"
         >
