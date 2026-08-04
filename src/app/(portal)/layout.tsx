@@ -28,7 +28,7 @@ export default async function PortalLayout({
     .from('profiles')
     .select('full_name, role, status')
     .eq('id', user.id)
-    .maybeSingle();
+    .maybeSingle<{ full_name: string; role: UserRole; status: string }>();
 
   if (!profile) redirect('/login');
   if (!EXTERNAL_ROLES.includes(profile.role as UserRole)) redirect('/dashboard');

@@ -39,7 +39,7 @@ export async function loginAction(
     .from('profiles')
     .select('role, status, must_change_password')
     .eq('id', data.user.id)
-    .maybeSingle();
+    .maybeSingle<{ role: UserRole; status: string; must_change_password: boolean }>();
 
   if (!profile) {
     await supabase.auth.signOut();

@@ -60,7 +60,7 @@ export async function changePasswordAction(
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .maybeSingle();
+    .maybeSingle<{ role: UserRole }>();
 
-  redirect(profile ? homeRouteForRole(profile.role as UserRole) : '/login');
+  redirect(profile ? homeRouteForRole(profile.role) : '/login');
 }

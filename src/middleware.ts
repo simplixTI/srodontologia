@@ -67,7 +67,7 @@ export async function middleware(request: NextRequest) {
     .from('profiles')
     .select('role, status, must_change_password')
     .eq('id', user.id)
-    .maybeSingle();
+    .maybeSingle<{ role: UserRole; status: string; must_change_password: boolean }>();
 
   if (!profile) {
     // No profile row → sign the user out; treat as anonymous.

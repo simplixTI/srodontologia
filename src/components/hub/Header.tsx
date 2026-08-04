@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, ChevronDown, LogOut, User } from 'lucide-react';
+import { Bell, Search, ChevronDown, LogOut, User, type LucideIcon } from 'lucide-react';
 import { logoutAction } from '@/features/auth/actions/logout';
 import { ROLE_LABELS } from '@/lib/permissions/roles';
 import type { UserRole } from '@/types/database';
@@ -108,7 +108,7 @@ function MenuLink({
   label,
   href
 }: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   label: string;
   href: string;
 }) {

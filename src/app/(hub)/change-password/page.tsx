@@ -14,15 +14,15 @@ export default async function ChangePasswordPage() {
   const { data } = await supabase.auth.getUser();
   const email = data.user?.email ?? '';
 
-  const { data: profile } = data.user
-    ? await supabase
-        .from('profiles')
-        .select('must_change_password')
-        .eq('id', data.user.id)
-        .maybeSingle()
-    : { data: null };
-
-  const forced = !!profile?.must_change_password;
+  let forced = false;
+  if (data.user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('must_change_password')
+      .eq('id', data.user.id)
+      .maybeSingle<{ must_change_password: boolean }>();
+    forced = !!profile?.must_change_password;
+  }
 
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-8 px-6 py-14 md:px-10">

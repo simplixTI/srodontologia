@@ -28,7 +28,15 @@ export default async function HubLayout({
     .from('profiles')
     .select('id, full_name, email, role, avatar_url, status, must_change_password')
     .eq('id', user.id)
-    .maybeSingle();
+    .maybeSingle<{
+      id: string;
+      full_name: string;
+      email: string;
+      role: UserRole;
+      avatar_url: string | null;
+      status: string;
+      must_change_password: boolean;
+    }>();
 
   if (!profile) {
     await supabase.auth.signOut();
