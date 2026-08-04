@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Plus, Briefcase, UserCircle2, Building2, Calendar, Clock } from 'lucide-react';
 import { listCases } from '@/features/cases/queries';
+import { calcSla, slaBadgeClass } from '@/features/cases/sla';
 import { PUBLIC_STATUS_LABELS, CASE_PRIORITY_LABELS, type CasePriority } from '@/lib/validations/cases';
 
 export const metadata: Metadata = { title: 'Casos · SR HUB' };
@@ -104,6 +105,12 @@ export default async function CasesPage({
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {cases.map((c) => {
             const band = healthBand(c.health_score);
+            const sla = calcSla({
+              requestedDeliveryDate: c.requested_delivery_date,
+              estimatedDeliveryDate: c.estimated_delivery_date,
+              actualDeliveryDate: c.actual_delivery_date,
+              internalStatus: c.internal_status
+            });
             return (
               <Link
                 key={c.id}
@@ -124,9 +131,14 @@ export default async function CasesPage({
                       {c.title}
                     </h3>
                   </div>
-                  <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.55rem] uppercase tracking-[0.28em] ${band.cls}`}>
-                    {c.health_score}%
-                  </span>
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
+                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.55rem] uppercase tracking-[0.28em] ${band.cls}`}>
+                      {c.health_score}%
+                    </span>
+                    {sla.status !== 'no_date' && sla.status !== 'on_track' && (
+                      <span className={slaBadgeClass(sla.tone)}>{sla.label}</span>
+                    )}
+                  </div>
                 </div>
 
                 <ul className="space-y-1.5 text-[0.65rem] text-white/55">

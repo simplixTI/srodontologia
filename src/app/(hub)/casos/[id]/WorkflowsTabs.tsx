@@ -1,136 +1,12 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Plus, FileSpreadsheet, ClipboardList } from 'lucide-react';
-import type { Quote } from '@/features/quotes/types';
-import { QUOTE_STATUS_LABELS } from '@/features/quotes/types';
+import { Plus, ClipboardList } from 'lucide-react';
+import { toast } from 'sonner';
 import type { PlanningVersion } from '@/features/planning/types';
 import { PLANNING_STATUS_LABELS } from '@/features/planning/types';
-import { createQuoteAction } from '@/features/quotes/actions';
 import { createPlanningVersionAction } from '@/features/planning/actions';
-import { Field, Input, Submit } from '@/components/ui/Field';
-
-// ─── Quotes tab ─────────────────────────────────────────────
-export function QuotesTab({ caseId, quotes }: { caseId: string; quotes: Quote[] }) {
-  const [openForm, setOpenForm] = useState(quotes.length === 0);
-  const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-
-  const submit = (fd: FormData) => {
-    setError(null);
-    startTransition(async () => {
-      const res = await createQuoteAction(caseId, fd);
-      if (!res.ok) setError(res.error ?? 'Erro ao criar.');
-      else window.location.reload();
-    });
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="font-display text-xl text-white">Orçamentos</h3>
-          <p className="mt-1 text-xs text-white/50">
-            {quotes.length} versão{quotes.length !== 1 ? 'ões' : ''} · nova versão a cada alteração
-          </p>
-        </div>
-        {!openForm && (
-          <button
-            onClick={() => setOpenForm(true)}
-            className="btn-gold inline-flex h-10 items-center gap-2 rounded-full px-5 text-[0.65rem] uppercase tracking-[0.24em]"
-          >
-            <Plus className="h-3.5 w-3.5" strokeWidth={2} /> Nova versão
-          </button>
-        )}
-      </div>
-
-      {openForm && (
-        <form action={submit} className="rounded-2xl border border-gold/20 bg-white/[0.02] p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <h4 className="font-display text-lg text-white">Nova versão do orçamento</h4>
-            <button type="button" onClick={() => setOpenForm(false)} className="text-[0.6rem] uppercase tracking-[0.28em] text-white/50 hover:text-gold-100">
-              cancelar
-            </button>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Valor total (R$)" htmlFor="total">
-              <Input id="total" name="total" type="number" step="0.01" min={0} required />
-            </Field>
-            <Field label="Prazo estimado (dias)" htmlFor="estimated_days">
-              <Input id="estimated_days" name="estimated_days" type="number" min={0} />
-            </Field>
-            <Field label="Condições de pagamento" htmlFor="payment_terms">
-              <Input id="payment_terms" name="payment_terms" placeholder="30/60 dias" />
-            </Field>
-            <Field label="Validade" htmlFor="validity_date">
-              <Input id="validity_date" name="validity_date" type="date" />
-            </Field>
-            <div className="md:col-span-2">
-              <Field label="Observações públicas" htmlFor="public_notes">
-                <textarea
-                  id="public_notes"
-                  name="public_notes"
-                  rows={2}
-                  className="w-full rounded-xl border border-gold/15 bg-black/40 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-gold/60 focus:outline-none focus:ring-2 focus:ring-gold/25"
-                />
-              </Field>
-            </div>
-          </div>
-          {error && <p className="mt-3 rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">{error}</p>}
-          <div className="mt-4"><Submit pending={pending}>Criar rascunho</Submit></div>
-        </form>
-      )}
-
-      {quotes.length === 0 && !openForm && (
-        <p className="rounded-2xl border border-gold/10 bg-white/[0.02] p-8 text-center text-sm text-white/50">
-          Nenhum orçamento gerado ainda.
-        </p>
-      )}
-
-      {quotes.map((q) => (
-        <div key={q.id} className="rounded-2xl border border-gold/10 bg-white/[0.02] p-5">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-gold/20 bg-black/40">
-                <FileSpreadsheet className="h-4 w-4 text-gold-100" strokeWidth={1.5} />
-              </div>
-              <div>
-                <div className="text-sm text-white">
-                  {q.quote_number} <span className="text-white/40">· v{q.version_number}</span>
-                </div>
-                <div className="text-[0.6rem] uppercase tracking-[0.25em] text-white/40">
-                  {new Date(q.created_at).toLocaleDateString('pt-BR')}
-                </div>
-              </div>
-            </div>
-            <span className={statusPill(q.status)}>
-              {QUOTE_STATUS_LABELS[q.status]}
-            </span>
-          </div>
-          <div className="mt-3 flex items-baseline gap-3">
-            <span className="font-display text-2xl text-white">
-              R$ {Number(q.total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </span>
-            {q.estimated_days != null && (
-              <span className="text-[0.6rem] uppercase tracking-[0.25em] text-white/40">
-                · {q.estimated_days} dias
-              </span>
-            )}
-            {q.payment_terms && (
-              <span className="text-[0.6rem] uppercase tracking-[0.25em] text-white/40">
-                · {q.payment_terms}
-              </span>
-            )}
-          </div>
-          {q.public_notes && <p className="mt-3 text-xs text-white/60">{q.public_notes}</p>}
-          <p className="mt-3 text-[0.55rem] uppercase tracking-[0.25em] text-white/30">
-            Fluxo de aprovação pelo dentista chega na Fase 3 (Portal do Dentista).
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-}
+import { Field, Submit } from '@/components/ui/Field';
 
 // ─── Planning tab ────────────────────────────────────────────
 export function PlanningTab({ caseId, versions }: { caseId: string; versions: PlanningVersion[] }) {
@@ -143,7 +19,10 @@ export function PlanningTab({ caseId, versions }: { caseId: string; versions: Pl
     startTransition(async () => {
       const res = await createPlanningVersionAction(caseId, fd);
       if (!res.ok) setError(res.error ?? 'Erro ao criar.');
-      else window.location.reload();
+      else {
+        toast.success('Versão de planejamento criada');
+        window.location.reload();
+      }
     });
   };
 
@@ -214,7 +93,7 @@ export function PlanningTab({ caseId, versions }: { caseId: string; versions: Pl
             <p className="mt-3 whitespace-pre-wrap text-sm text-white/80">{v.technical_description}</p>
           )}
           <p className="mt-3 text-[0.55rem] uppercase tracking-[0.25em] text-white/30">
-            Anexos + aprovação pelo dentista na Fase 3.
+            Anexos + aprovação pelo dentista na Fase 4.
           </p>
         </div>
       ))}
@@ -228,10 +107,8 @@ function statusPill(status: string) {
     case 'draft': return `${base} border-white/15 bg-white/[0.03] text-white/60`;
     case 'sent': return `${base} border-sky-400/30 bg-sky-400/10 text-sky-200`;
     case 'approved': return `${base} border-emerald-400/30 bg-emerald-400/10 text-emerald-200`;
-    case 'rejected': return `${base} border-rose-400/30 bg-rose-400/10 text-rose-200`;
     case 'changes_requested': return `${base} border-amber-400/30 bg-amber-400/10 text-amber-200`;
     case 'obsolete': return `${base} border-white/10 bg-white/[0.02] text-white/40`;
-    case 'expired': return `${base} border-white/10 bg-white/[0.02] text-white/40`;
     default: return `${base} border-white/15 bg-white/[0.03] text-white/60`;
   }
 }

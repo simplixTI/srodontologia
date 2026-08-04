@@ -9,11 +9,13 @@ import { PUBLIC_STATUS_LABELS, CASE_PRIORITIES, CASE_PRIORITY_LABELS } from '@/l
 import { FilesTab } from './FilesTab';
 import { MessagesTab } from './MessagesTab';
 import { DeliveriesTab } from './DeliveriesTab';
-import { QuotesTab, PlanningTab } from './WorkflowsTabs';
+import { QuotesTab } from './QuotesTab';
+import { PlanningTab } from './WorkflowsTabs';
 import type { CaseFile } from '@/features/files/queries';
 import type { CaseMessage } from '@/features/messages/queries';
 import type { Delivery } from '@/features/deliveries/types';
 import type { Quote } from '@/features/quotes/types';
+import type { QuoteItem } from '@/features/quotes/queries';
 import type { PlanningVersion } from '@/features/planning/types';
 
 type Tab = 'details' | 'checklist' | 'files' | 'messages' | 'quotes' | 'planning' | 'deliveries' | 'timeline';
@@ -26,6 +28,7 @@ export function CaseTabs({
   filesPerItem,
   messages,
   quotes,
+  quoteItems,
   planning,
   deliveries,
   dentists,
@@ -39,6 +42,7 @@ export function CaseTabs({
   filesPerItem: Map<string, number>;
   messages: CaseMessage[];
   quotes: Quote[];
+  quoteItems: Map<string, QuoteItem[]>;
   planning: PlanningVersion[];
   deliveries: Delivery[];
   dentists: { id: string; full_name: string }[];
@@ -111,7 +115,7 @@ export function CaseTabs({
           <MessagesTab caseId={caseRow.id} initialMessages={messages} />
         )}
         {tab === 'quotes' && (
-          <QuotesTab caseId={caseRow.id} quotes={quotes} />
+          <QuotesTab caseId={caseRow.id} quotes={quotes} itemsByQuote={quoteItems} />
         )}
         {tab === 'planning' && (
           <PlanningTab caseId={caseRow.id} versions={planning} />

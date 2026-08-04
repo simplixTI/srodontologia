@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useRef, useEffect } from 'react';
-import { Send, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Send, Eye, EyeOff, Loader2, Reply, X } from 'lucide-react';
 import type { CaseMessage } from '@/features/messages/queries';
 import { sendCaseMessageAction } from '@/features/messages/actions';
 import { ROLE_LABELS } from '@/lib/permissions/roles';
@@ -16,10 +16,13 @@ export function MessagesTab({
 }) {
   const [messages, setMessages] = useState(initialMessages);
   const [visibility, setVisibility] = useState<'dentist' | 'internal'>('dentist');
+  const [replyTo, setReplyTo] = useState<CaseMessage | null>(null);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  const messagesById = new Map(messages.map((m) => [m.id, m]));
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
@@ -36,7 +39,7 @@ export function MessagesTab({
       sender_id: 'me',
       message,
       visibility,
-      reply_to_id: null,
+      reply_to_id: replyTo?.id ?? null,
       edited_at: null,
       created_at: new Date().toISOString(),
       sender: null
@@ -44,11 +47,14 @@ export function MessagesTab({
     setMessages((prev) => [...prev, optimistic]);
     if (textareaRef.current) textareaRef.current.value = '';
     setError(null);
+    const currentReply = replyTo;
+    setReplyTo(null);
 
     startTransition(async () => {
       const fd = new FormData();
       fd.append('message', message);
       fd.append('visibility', visibility);
+      if (currentReply) fd.append('reply_to_id', currentReply.id);
       const result = await sendCaseMessageAction(caseId, fd);
       if (!result.ok) {
         setError(result.error ?? 'Erro ao enviar.');
@@ -83,49 +89,89 @@ export function MessagesTab({
           </p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {messages.map((m) => (
-              <li
-                key={m.id}
-                className={
-                  'flex flex-col rounded-2xl p-3 ' +
-                  (m.visibility === 'internal'
-                    ? 'border border-white/10 bg-white/[0.02]'
-                    : 'border border-gold/20 bg-gold/[0.05]')
-                }
-              >
-                <div className="mb-1 flex items-center justify-between gap-2 text-[0.55rem] uppercase tracking-[0.28em]">
-                  <span className="text-white/70">
-                    {m.sender?.full_name ?? 'Você'}
-                    {m.sender?.role && (
-                      <span className="ml-2 text-white/40">· {ROLE_LABELS[m.sender.role as UserRole] ?? m.sender.role}</span>
+            {messages.map((m) => {
+              const parent = m.reply_to_id ? messagesById.get(m.reply_to_id) : null;
+              return (
+                <li
+                  key={m.id}
+                  className={
+                    'group flex flex-col rounded-2xl p-3 ' +
+                    (m.visibility === 'internal'
+                      ? 'border border-white/10 bg-white/[0.02]'
+                      : 'border border-gold/20 bg-gold/[0.05]')
+                  }
+                >
+                  {parent && (
+                    <div className="mb-2 rounded-lg border-l-2 border-gold/40 bg-black/30 px-2 py-1">
+                      <div className="text-[0.55rem] uppercase tracking-[0.25em] text-gold-100/70">
+                        {parent.sender?.full_name ?? 'anteriormente'}
+                      </div>
+                      <div className="line-clamp-2 text-[0.7rem] text-white/60">{parent.message}</div>
+                    </div>
+                  )}
+                  <div className="mb-1 flex items-center justify-between gap-2 text-[0.55rem] uppercase tracking-[0.28em]">
+                    <span className="text-white/70">
+                      {m.sender?.full_name ?? 'Você'}
+                      {m.sender?.role && (
+                        <span className="ml-2 text-white/40">· {ROLE_LABELS[m.sender.role as UserRole] ?? m.sender.role}</span>
+                      )}
+                    </span>
+                    <span
+                      className={
+                        m.visibility === 'internal'
+                          ? 'inline-flex items-center gap-1 text-white/50'
+                          : 'inline-flex items-center gap-1 text-gold-100'
+                      }
+                    >
+                      {m.visibility === 'internal' ? (
+                        <><EyeOff className="h-2.5 w-2.5" strokeWidth={1.5} /> interna</>
+                      ) : (
+                        <><Eye className="h-2.5 w-2.5" strokeWidth={1.5} /> dentista</>
+                      )}
+                    </span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm text-white">{m.message}</p>
+                  <div className="mt-2 flex items-center justify-between text-[0.55rem] text-white/35">
+                    <span>{new Date(m.created_at).toLocaleString('pt-BR')}</span>
+                    {!m.id.startsWith('temp-') && (
+                      <button
+                        onClick={() => {
+                          setReplyTo(m);
+                          textareaRef.current?.focus();
+                        }}
+                        className="inline-flex items-center gap-1 uppercase tracking-[0.25em] text-white/40 opacity-0 transition group-hover:opacity-100 hover:text-gold-100"
+                      >
+                        <Reply className="h-2.5 w-2.5" strokeWidth={1.5} /> responder
+                      </button>
                     )}
-                  </span>
-                  <span
-                    className={
-                      m.visibility === 'internal'
-                        ? 'inline-flex items-center gap-1 text-white/50'
-                        : 'inline-flex items-center gap-1 text-gold-100'
-                    }
-                  >
-                    {m.visibility === 'internal' ? (
-                      <><EyeOff className="h-2.5 w-2.5" strokeWidth={1.5} /> interna</>
-                    ) : (
-                      <><Eye className="h-2.5 w-2.5" strokeWidth={1.5} /> dentista</>
-                    )}
-                  </span>
-                </div>
-                <p className="whitespace-pre-wrap text-sm text-white">{m.message}</p>
-                <div className="mt-2 text-[0.55rem] text-white/35">
-                  {new Date(m.created_at).toLocaleString('pt-BR')}
-                </div>
-              </li>
-            ))}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
 
       {/* Composer */}
       <div className="rounded-2xl border border-gold/10 bg-white/[0.02] p-3">
+        {replyTo && (
+          <div className="mb-2 flex items-start gap-2 rounded-lg border border-gold/25 bg-gold/[0.06] p-2 pl-3">
+            <Reply className="mt-0.5 h-3 w-3 shrink-0 text-gold-100" strokeWidth={1.5} />
+            <div className="min-w-0 flex-1">
+              <div className="text-[0.55rem] uppercase tracking-[0.28em] text-gold-100/90">
+                respondendo a {replyTo.sender?.full_name ?? '—'}
+              </div>
+              <div className="line-clamp-1 text-[0.7rem] text-white/60">{replyTo.message}</div>
+            </div>
+            <button
+              onClick={() => setReplyTo(null)}
+              className="inline-flex h-5 w-5 items-center justify-center rounded text-white/60 hover:bg-white/5 hover:text-gold-100"
+              title="Cancelar resposta"
+            >
+              <X className="h-3 w-3" strokeWidth={1.5} />
+            </button>
+          </div>
+        )}
         <textarea
           ref={textareaRef}
           placeholder={visibility === 'internal' ? 'Nota interna (não visível ao dentista)...' : 'Mensagem para o dentista...'}

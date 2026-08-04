@@ -96,6 +96,9 @@ export function DeliveriesTab({
             <Field label="Transportadora" htmlFor="carrier">
               <Input id="carrier" name="carrier" placeholder="Correios, JadLog..." />
             </Field>
+            <Field label="Motorista" htmlFor="driver_name">
+              <Input id="driver_name" name="driver_name" placeholder="Nome do motorista (se aplicável)" />
+            </Field>
             <Field label="Código de rastreio" htmlFor="tracking_code">
               <Input id="tracking_code" name="tracking_code" placeholder="BR1234567BR" />
             </Field>
@@ -146,7 +149,7 @@ export function DeliveriesTab({
               <div>
                 <div className="text-sm text-white">{d.method || 'Método não definido'}</div>
                 <div className="text-[0.6rem] uppercase tracking-[0.25em] text-white/40">
-                  {[d.carrier, d.recipient_name].filter(Boolean).join(' · ') || 'sem detalhes'}
+                  {[d.carrier, d.driver_name, d.recipient_name].filter(Boolean).join(' · ') || 'sem detalhes'}
                 </div>
               </div>
             </div>
@@ -186,13 +189,23 @@ export function DeliveriesTab({
             </div>
           )}
 
-          <div className="mt-3 flex flex-wrap gap-x-4 text-[0.6rem] uppercase tracking-[0.25em] text-white/40">
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[0.6rem] uppercase tracking-[0.25em] text-white/40">
             {d.estimated_delivery_at && (
               <span>Previsão: {new Date(d.estimated_delivery_at).toLocaleDateString('pt-BR')}</span>
             )}
             {d.shipped_at && <span>Enviado em: {new Date(d.shipped_at).toLocaleDateString('pt-BR')}</span>}
             {d.delivered_at && <span>Entregue em: {new Date(d.delivered_at).toLocaleDateString('pt-BR')}</span>}
+            {d.receipt_file_id && (
+              <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-emerald-200">
+                ✓ comprovante anexado
+              </span>
+            )}
           </div>
+          {!d.receipt_file_id && d.status === 'delivered' && (
+            <p className="mt-2 text-[0.6rem] uppercase tracking-[0.25em] text-amber-200/80">
+              Anexe o comprovante de entrega pela aba Arquivos (visibilidade: dentista) e vincule aqui.
+            </p>
+          )}
         </div>
       ))}
     </div>

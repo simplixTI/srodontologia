@@ -24,6 +24,7 @@ export async function sendCaseMessageAction(
 ): Promise<ActionState> {
   const message = String(formData.get('message') ?? '').trim();
   const visibility = String(formData.get('visibility') ?? 'dentist') === 'internal' ? 'internal' : 'dentist';
+  const reply_to_id = String(formData.get('reply_to_id') ?? '').trim() || null;
 
   if (message.length < 1) return { ok: false, error: 'Digite uma mensagem.' };
   if (message.length > 5000) return { ok: false, error: 'Mensagem muito longa.' };
@@ -34,7 +35,8 @@ export async function sendCaseMessageAction(
     case_id: caseId,
     sender_id: user.id,
     message,
-    visibility
+    visibility,
+    reply_to_id
   } as never);
 
   if (error) return { ok: false, error: error.message };

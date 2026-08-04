@@ -23,6 +23,7 @@ async function requireInternal() {
 export async function createDeliveryAction(caseId: string, formData: FormData): Promise<ActionState> {
   const method = String(formData.get('method') ?? '').trim() || null;
   const carrier = String(formData.get('carrier') ?? '').trim() || null;
+  const driver_name = String(formData.get('driver_name') ?? '').trim() || null;
   const tracking_code = String(formData.get('tracking_code') ?? '').trim() || null;
   const tracking_url = String(formData.get('tracking_url') ?? '').trim() || null;
   const recipient_name = String(formData.get('recipient_name') ?? '').trim() || null;
@@ -36,6 +37,7 @@ export async function createDeliveryAction(caseId: string, formData: FormData): 
     status,
     method,
     carrier,
+    driver_name,
     tracking_code,
     tracking_url,
     recipient_name,
@@ -45,6 +47,20 @@ export async function createDeliveryAction(caseId: string, formData: FormData): 
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/casos/${caseId}`);
   return { ok: true };
+}
+
+export async function attachDeliveryReceiptAction(
+  deliveryId: string,
+  caseId: string,
+  caseFileId: string
+) {
+  const { supabase } = await requireInternal();
+  const { error } = await supabase
+    .from('deliveries')
+    .update({ receipt_file_id: caseFileId } as never)
+    .eq('id', deliveryId);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/casos/${caseId}`);
 }
 
 export async function updateDeliveryStatusAction(deliveryId: string, caseId: string, newStatus: string) {

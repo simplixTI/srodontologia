@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { UserCircle2, Building2, Briefcase, Calendar, Clock } from 'lucide-react';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { calcSla, slaBadgeClass } from '@/features/cases/sla';
 import { getCase, getCaseTimeline, listCaseChecklist, listDentistsForSelect, listCaseTypesForSelect } from '@/features/cases/queries';
 import { listCaseFiles, countFilesPerChecklistItem } from '@/features/files/queries';
 import { listClinicsForSelect } from '@/features/dentists/queries';
 import { listCaseMessages } from '@/features/messages/queries';
-import { listCaseQuotes } from '@/features/quotes/queries';
+import { listCaseQuotes, listQuoteItems } from '@/features/quotes/queries';
 import { listCasePlanning } from '@/features/planning/queries';
 import { listCaseDeliveries } from '@/features/deliveries/queries';
 import { CaseTabs } from './CaseTabs';
@@ -49,6 +50,7 @@ export default async function CaseDetailPage({
     listCaseTypesForSelect()
   ]);
   if (!caseRow) notFound();
+  const quoteItems = await listQuoteItems(quotes.map((q) => q.id));
 
   const isDraft = caseRow.internal_status === 'draft';
 
@@ -84,6 +86,17 @@ export default async function CaseDetailPage({
               {CASE_PRIORITY_LABELS[caseRow.priority as CasePriority]}
             </span>
           )}
+          {(() => {
+            const sla = calcSla({
+              requestedDeliveryDate: caseRow.requested_delivery_date,
+              estimatedDeliveryDate: caseRow.estimated_delivery_date,
+              actualDeliveryDate: caseRow.actual_delivery_date,
+              internalStatus: caseRow.internal_status
+            });
+            return sla.status !== 'no_date' ? (
+              <span className={slaBadgeClass(sla.tone)}>{sla.label}</span>
+            ) : null;
+          })()}
         </div>
 
         <h1 className="font-display text-3xl leading-tight text-white md:text-4xl">
@@ -144,6 +157,7 @@ export default async function CaseDetailPage({
         filesPerItem={filesPerItem}
         messages={messages}
         quotes={quotes}
+        quoteItems={quoteItems}
         planning={planning}
         deliveries={deliveries}
         dentists={dentists}

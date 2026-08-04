@@ -51,7 +51,7 @@ export async function listCases(opts?: { search?: string; status?: string }) {
   let q = supabase
     .from('cases')
     .select(
-      'id, case_number, title, priority, internal_status, public_status, health_score, missing_required_items_count, requested_delivery_date, updated_at, created_at, dentist:dentists(id, full_name), clinic:clinics(id, trade_name), case_type:case_types(id, name)'
+      'id, case_number, title, priority, internal_status, public_status, health_score, missing_required_items_count, requested_delivery_date, estimated_delivery_date, actual_delivery_date, updated_at, created_at, dentist:dentists(id, full_name), clinic:clinics(id, trade_name), case_type:case_types(id, name)'
     )
     .is('archived_at', null)
     .order('updated_at', { ascending: false });
@@ -70,7 +70,7 @@ export async function listCases(opts?: { search?: string; status?: string }) {
     CaseRow,
     'id' | 'case_number' | 'title' | 'priority' | 'internal_status' |
     'public_status' | 'health_score' | 'missing_required_items_count' |
-    'requested_delivery_date' | 'updated_at' | 'created_at'
+    'requested_delivery_date' | 'estimated_delivery_date' | 'actual_delivery_date' | 'updated_at' | 'created_at'
   > & {
     dentist: { id: string; full_name: string } | null;
     clinic: { id: string; trade_name: string } | null;
