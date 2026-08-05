@@ -8,7 +8,7 @@ import { NotConfiguredScreen } from '@/components/hub/NotConfiguredScreen';
 import { ImpersonationBanner } from '@/components/layout/ImpersonationBanner';
 import { FeedbackButton } from '@/components/feedback/FeedbackButton';
 import { listMyNotifications, countMyUnread } from '@/features/notifications/queries';
-import type { UserRole } from '@/types/database';
+import type { PlatformRole, UserRole } from '@/types/database';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,13 +29,14 @@ export default async function HubLayout({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, full_name, email, role, avatar_url, status, must_change_password')
+    .select('id, full_name, email, role, platform_role, avatar_url, status, must_change_password')
     .eq('id', user.id)
     .maybeSingle<{
       id: string;
       full_name: string;
       email: string;
       role: UserRole;
+      platform_role: PlatformRole | null;
       avatar_url: string | null;
       status: string;
       must_change_password: boolean;
@@ -69,6 +70,7 @@ export default async function HubLayout({
               full_name: profile.full_name,
               email: profile.email,
               role: profile.role as UserRole,
+              platform_role: profile.platform_role,
               avatar_url: profile.avatar_url
             }}
             notifications={notifications}

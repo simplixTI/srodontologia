@@ -8,7 +8,7 @@ export default async function UsuariosPlatformaPage() {
   const admin = createSupabaseAdminClient();
   const { data } = await admin
     .from('profiles')
-    .select('id, email, full_name, role, status, platform_role, last_sign_in_at, created_at, organization:organizations(name)')
+    .select('id, email, full_name, role, status, platform_role, last_login_at, created_at, organization:organizations(name)')
     .order('created_at', { ascending: false })
     .limit(200);
 

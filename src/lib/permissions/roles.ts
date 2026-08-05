@@ -45,7 +45,7 @@ export const EXTERNAL_ROLES: UserRole[] = [ROLES.DENTIST];
 export const OFFICE_ADMIN_ROLES: UserRole[] = [ROLES.SUPER_ADMIN, ROLES.ADMIN];
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  super_admin: 'Administrador do Escritório',
+  super_admin: 'Super Administrador',
   admin: 'Administrador',
   manager: 'Gerente',
   commercial: 'Comercial',

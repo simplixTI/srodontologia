@@ -7,7 +7,7 @@ export type TeamMemberRow = {
   full_name: string;
   role: string;
   status: string;
-  last_sign_in_at: string | null;
+  last_login_at: string | null;
   created_at: string;
 };
 
@@ -25,7 +25,7 @@ export async function listTeamMembers(): Promise<TeamMemberRow[]> {
   const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, email, full_name, role, status, last_sign_in_at, created_at')
+    .select('id, email, full_name, role, status, last_login_at, created_at')
     .order('created_at');
   if (error) throw new Error(error.message);
   return (data ?? []) as TeamMemberRow[];

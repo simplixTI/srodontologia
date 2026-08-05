@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, LogOut, User, type LucideIcon } from 'lucide-react';
 import { logoutAction } from '@/features/auth/actions/logout';
 import { ROLE_LABELS } from '@/lib/permissions/roles';
-import type { UserRole } from '@/types/database';
+import type { PlatformRole, UserRole } from '@/types/database';
 import { NotificationsBell } from './NotificationsBell';
 import { CommandPalette } from './CommandPalette';
 import { MobileNav } from './MobileNav';
@@ -15,10 +15,16 @@ type Props = {
     full_name: string;
     email: string;
     role: UserRole;
+    platform_role: PlatformRole | null;
     avatar_url: string | null;
   };
   notifications: Notification[];
   unread: number;
+};
+
+const PLATFORM_LABEL: Record<PlatformRole, string> = {
+  super: 'Super · Plataforma',
+  support: 'Suporte · Plataforma'
 };
 
 export function Header({ user, notifications, unread }: Props) {
@@ -80,7 +86,7 @@ export function Header({ user, notifications, unread }: Props) {
             <div className="hidden text-left md:block">
               <div className="text-[0.75rem] text-white">{user.full_name}</div>
               <div className="text-[0.55rem] uppercase tracking-[0.25em] text-white/40">
-                {ROLE_LABELS[user.role]}
+                {user.platform_role ? PLATFORM_LABEL[user.platform_role] : ROLE_LABELS[user.role]}
               </div>
             </div>
             <ChevronDown className="h-3 w-3 text-white/50" strokeWidth={1.5} />
