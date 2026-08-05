@@ -14,6 +14,7 @@ import { processPdfGenerate } from './pdf';
 import { processLgpdExport, processLgpdDeletion } from './lgpd';
 import { processDomainVerify } from './domain';
 import { processDeviceAlert } from './device-alert';
+import { processCsvImport } from './csv-import';
 
 let bootstrapped = false;
 
@@ -40,4 +41,5 @@ export function bootstrapProcessors(): void {
   registerJobProcessor('lgpd_deletion', processLgpdDeletion);
   registerJobProcessor('domain_verify', processDomainVerify);
   registerJobProcessor('device_alert', processDeviceAlert);
+  registerJobProcessor('csv_import', processCsvImport);
 }
