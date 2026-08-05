@@ -1,6 +1,73 @@
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { assertRateLimit } from '@/lib/rate-limit';
+
+export type SmartSearchHit = {
+  entity_type: 'case' | 'message' | 'patient' | 'dentist' | 'clinic';
+  entity_id: string;
+  title: string;
+  snippet: string;
+  rank: number;
+  metadata: Record<string, unknown>;
+};
+
+export type SmartSearchResult =
+  | { ok: true; query: string; hits: SmartSearchHit[] }
+  | { ok: false; error: string };
+
+/**
+ * Full-text search over search_index (tsvector, Portuguese).
+ * RLS enforces org scoping; websearch_to_tsquery accepts natural syntax.
+ */
+export async function smartSearchAction(
+  rawQuery: string,
+  opts: { limit?: number; entityType?: SmartSearchHit['entity_type'] | 'all' } = {}
+): Promise<SmartSearchResult> {
+  const q = (rawQuery ?? '').trim();
+  if (q.length < 2) return { ok: true, query: q, hits: [] };
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { ok: false, error: 'Não autenticado.' };
+    assertRateLimit(`smart-search:${user.id}`, { max: 60, windowMs: 60_000, label: 'Buscas' });
+
+    const limit = Math.min(50, Math.max(5, opts.limit ?? 20));
+    let query = supabase
+      .from('search_index')
+      .select('entity_type, entity_id, title, content, metadata')
+      .textSearch('tokens', q, { config: 'portuguese', type: 'websearch' })
+      .limit(limit);
+
+    if (opts.entityType && opts.entityType !== 'all') query = query.eq('entity_type', opts.entityType);
+
+    const { data, error } = await query;
+    if (error) return { ok: false, error: error.message };
+
+    const hits: SmartSearchHit[] = (data ?? []).map((r, i) => ({
+      entity_type: r.entity_type as SmartSearchHit['entity_type'],
+      entity_id: r.entity_id as string,
+      title: (r.title as string) ?? '(sem título)',
+      snippet: excerptAround(r.content as string, q, 200),
+      rank: 1 - i / limit,
+      metadata: (r.metadata as Record<string, unknown>) ?? {}
+    }));
+    return { ok: true, query: q, hits };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Falha na busca.' };
+  }
+}
+
+function excerptAround(content: string, query: string, radius: number): string {
+  if (!content) return '';
+  const term = query.split(/\s+/)[0]?.toLowerCase() ?? '';
+  const lower = content.toLowerCase();
+  const idx = term ? lower.indexOf(term) : -1;
+  if (idx === -1) return content.slice(0, radius);
+  const start = Math.max(0, idx - Math.floor(radius / 2));
+  const end = Math.min(content.length, start + radius);
+  return (start > 0 ? '…' : '') + content.slice(start, end) + (end < content.length ? '…' : '');
+}
 
 export type SearchHit = {
   id: string;

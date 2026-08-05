@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install (locked)
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npm test --if-present -- --run
+
+      - name: Build
+        run: npm run build
+        env:
+          # Provide minimal stubs — real secrets never touch CI
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: stub_anon_key_for_ci
+          SUPABASE_SERVICE_ROLE_KEY: stub_service_role_key_for_ci
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci --no-audit --no-fund
+      - name: Dependency audit
+        run: npm audit --production --audit-level=high || true
+      - name: Secret scan (basic)
+        run: |
+          grep -rEn "sk_live_|whsec_[a-zA-Z0-9]{20,}|SUPABASE_SERVICE_ROLE_KEY=eyJ" \
+            --include='*.ts' --include='*.tsx' --include='*.mjs' --include='*.js' \
+            --exclude-dir=node_modules --exclude-dir=.next src/ scripts/ && \
+            (echo "Potential leaked secret" && exit 1) || echo "No obvious secrets in tracked files."

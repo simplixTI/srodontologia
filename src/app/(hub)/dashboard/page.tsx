@@ -23,6 +23,7 @@ import {
 import { CUSTOMER_STATUS_LABELS, type CustomerStatus } from '@/lib/validations/dentists';
 import { statusColor } from '@/components/hub/crm/statusColors';
 import type { UserRole } from '@/types/database';
+import { DashboardInsightsCard } from '@/components/ai/DashboardInsightsCard';
 
 export const metadata: Metadata = { title: 'Dashboard · SR HUB' };
 export const dynamic = 'force-dynamic';
@@ -87,6 +88,9 @@ export default async function DashboardPage() {
           Visão executiva da operação · dados em tempo real.
         </p>
       </header>
+
+      {/* AI insights card */}
+      <DashboardInsightsCard />
 
       {/* KPI grid */}
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">

@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import './globals.css';
 import { SITE } from '@/lib/utils';
 import { ConfirmProvider } from '@/components/ui/ConfirmDialog';
+import { SentryLoader } from '@/components/errors/SentryLoader';
 
 const sans = Inter({
   subsets: ['latin'],
@@ -128,6 +129,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <SentryLoader />
         <ConfirmProvider>{children}</ConfirmProvider>
         <Toaster
           position="top-right"

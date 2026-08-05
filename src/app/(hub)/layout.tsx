@@ -5,6 +5,8 @@ import { INTERNAL_ROLES } from '@/lib/permissions/roles';
 import { Sidebar } from '@/components/hub/Sidebar';
 import { Header } from '@/components/hub/Header';
 import { NotConfiguredScreen } from '@/components/hub/NotConfiguredScreen';
+import { ImpersonationBanner } from '@/components/layout/ImpersonationBanner';
+import { FeedbackButton } from '@/components/feedback/FeedbackButton';
 import { listMyNotifications, countMyUnread } from '@/features/notifications/queries';
 import type { UserRole } from '@/types/database';
 
@@ -57,21 +59,25 @@ export default async function HubLayout({
   ]);
 
   return (
-    <div className="flex min-h-[100svh] bg-black text-white">
-      <Sidebar />
-      <div className="flex min-h-[100svh] min-w-0 flex-1 flex-col">
-        <Header
-          user={{
-            full_name: profile.full_name,
-            email: profile.email,
-            role: profile.role as UserRole,
-            avatar_url: profile.avatar_url
-          }}
-          notifications={notifications}
-          unread={unread}
-        />
-        <main className="flex-1 overflow-x-hidden">{children}</main>
+    <div className="min-h-[100svh] bg-black text-white">
+      <ImpersonationBanner />
+      <div className="flex min-h-[100svh]">
+        <Sidebar />
+        <div className="flex min-h-[100svh] min-w-0 flex-1 flex-col">
+          <Header
+            user={{
+              full_name: profile.full_name,
+              email: profile.email,
+              role: profile.role as UserRole,
+              avatar_url: profile.avatar_url
+            }}
+            notifications={notifications}
+            unread={unread}
+          />
+          <main className="flex-1 overflow-x-hidden">{children}</main>
+        </div>
       </div>
+      <FeedbackButton />
     </div>
   );
 }

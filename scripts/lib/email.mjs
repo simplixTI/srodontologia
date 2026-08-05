@@ -126,7 +126,7 @@ export async function buildWelcomeEmail({ name, email, tempPassword, role, login
                     }
                     <div style="font-family:Georgia,'Times New Roman',serif;font-size:24px;letter-spacing:0.22em;color:#F0DEA9;">SR&nbsp;&nbsp;DIGITAL</div>
                     <div style="margin-top:6px;font-size:9px;letter-spacing:0.38em;color:rgba(245,238,224,0.5);text-transform:uppercase;">
-                      Digital · Implant · Center
+                      Planning · Design · Manufacturing
                     </div>
                   </td>
                 </tr>
@@ -212,7 +212,7 @@ export async function buildWelcomeEmail({ name, email, tempPassword, role, login
             <td style="padding:40px 32px 24px;">
               <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,75,0.3),transparent);"></div>
               <div style="margin-top:20px;text-align:center;font-size:10px;letter-spacing:0.3em;color:rgba(245,238,224,0.35);text-transform:uppercase;">
-                SR HUB · Digital Implant Center
+                SR HUB · Planning · Design · Manufacturing
               </div>
               <div style="margin-top:6px;text-align:center;font-size:10px;color:rgba(245,238,224,0.3);">
                 <a href="${escapeAttr(siteUrl)}" style="color:rgba(245,238,224,0.35);text-decoration:none;">${escapeHtml(siteUrl.replace(/^https?:\/\//, ''))}</a>
@@ -229,7 +229,7 @@ export async function buildWelcomeEmail({ name, email, tempPassword, role, login
 </body>
 </html>`;
 
-  const text = `Bem-vindo ao SR HUB — Digital Implant Center
+  const text = `Bem-vindo ao SR HUB — Planning · Design · Manufacturing
 
 Olá, ${name.split(' ')[0]}.
 
@@ -244,7 +244,7 @@ Acesse: ${loginUrl}
 A senha temporária deve ser alterada no primeiro acesso.
 Nunca compartilhe suas credenciais.
 
-SR Digital · Digital Implant Center
+SR Digital · Planning · Design · Manufacturing
 ${siteUrl}
 `;
 

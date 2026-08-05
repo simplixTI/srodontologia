@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { loginSchema } from '@/lib/validations/auth';
 import { homeRouteForRole } from '@/lib/permissions/roles';
 import { rateLimit } from '@/lib/rate-limit';
+import { recordSession } from '@/lib/sessions/registry';
 import type { UserRole } from '@/types/database';
 
 export type LoginState = {
@@ -75,6 +76,14 @@ export async function loginAction(
     .from('profiles')
     .update({ last_login_at: new Date().toISOString() })
     .eq('id', data.user.id);
+
+  // Register the session in our own registry (visibility + revocation layer)
+  await recordSession({
+    userId: data.user.id,
+    sessionIdentifier: data.session?.refresh_token ?? data.session?.access_token ?? data.user.id,
+    userAgent: h.get('user-agent'),
+    ip
+  });
 
   const next = profile.must_change_password
     ? '/change-password'

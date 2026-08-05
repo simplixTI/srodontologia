@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createCaseSchema, updateCaseSchema } from '@/lib/validations/cases';
+import { assertWithinLimit, incrementUsage } from '@/lib/limits/enforcement';
 
 export type ActionState = { ok: boolean; error?: string; id?: string };
 
@@ -38,6 +39,10 @@ export async function createCaseAction(
 
   try {
     const { supabase, user, profile } = await requireInternal();
+
+    // Plan enforcement: cases_month limit
+    await assertWithinLimit(profile.organization_id, 'cases_month');
+
     const { data, error } = await supabase
       .from('cases')
       .insert({
@@ -53,6 +58,9 @@ export async function createCaseAction(
       .single<{ id: string; case_type_id: string | null }>();
 
     if (error) return { ok: false, error: error.message };
+
+    // Track usage (fire-and-forget errors are ok — counter drift is corrected by next tick)
+    await incrementUsage(profile.organization_id, 'cases_month', 1);
 
     // Instantiate checklist if case type set
     if (data?.case_type_id) {

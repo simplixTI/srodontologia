@@ -1,10 +1,12 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { EXTERNAL_ROLES } from '@/lib/permissions/roles';
-import { LogoLockup } from '@/components/ui/Logo';
+import { ROLES } from '@/lib/permissions/roles';
 import { NotConfiguredScreen } from '@/components/hub/NotConfiguredScreen';
+import { PortalHeader } from '@/components/portal/PortalHeader';
+import { PortalSidebar } from '@/components/portal/PortalSidebar';
+import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
+import { countPortalUnread } from '@/features/portal/queries';
 import { logoutAction } from '@/features/auth/actions/logout';
 import type { UserRole } from '@/types/database';
 
@@ -26,38 +28,61 @@ export default async function PortalLayout({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, role, status')
+    .select('full_name, email, role, status, must_change_password')
     .eq('id', user.id)
-    .maybeSingle<{ full_name: string; role: UserRole; status: string }>();
+    .maybeSingle<{
+      full_name: string;
+      email: string;
+      role: UserRole;
+      status: string;
+      must_change_password: boolean;
+    }>();
 
   if (!profile) redirect('/login');
-  if (!EXTERNAL_ROLES.includes(profile.role as UserRole)) redirect('/dashboard');
   if (profile.status !== 'active') redirect('/login?reason=inactive');
+  if (profile.must_change_password) redirect('/change-password');
+  if (profile.role !== ROLES.DENTIST) redirect('/dashboard');
 
-  return (
-    <div className="min-h-[100svh] bg-black text-white">
-      <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-gold/10 bg-black/70 px-6 backdrop-blur">
-        <Link href="/portal" className="inline-flex">
-          <LogoLockup width={110} />
-        </Link>
-        <div className="flex items-center gap-4">
-          <div className="hidden text-right md:block">
-            <div className="text-[0.75rem] text-white">{profile.full_name}</div>
-            <div className="text-[0.55rem] uppercase tracking-[0.28em] text-white/40">
-              Portal do Dentista
-            </div>
-          </div>
+  const { data: dentist } = await supabase
+    .from('dentists')
+    .select('id, active, archived_at')
+    .eq('profile_id', user.id)
+    .maybeSingle<{ id: string; active: boolean; archived_at: string | null }>();
+
+  if (!dentist || !dentist.active || dentist.archived_at) {
+    return (
+      <div className="min-h-[100svh] bg-black text-white">
+        <div className="mx-auto flex min-h-[100svh] max-w-lg flex-col items-center justify-center gap-4 px-6 text-center">
+          <span className="text-[0.55rem] uppercase tracking-[0.35em] text-gold-100">
+            Portal do Dentista
+          </span>
+          <h1 className="font-display text-3xl text-white">
+            Acesso <span className="gold-text italic">indisponível</span>
+          </h1>
+          <p className="text-white/60">
+            Sua conta ainda não foi vinculada a um cadastro de dentista ativo.
+            Entre em contato com o laboratório para liberar o acesso.
+          </p>
           <form action={logoutAction}>
-            <button
-              type="submit"
-              className="rounded-full border border-gold/25 px-4 py-1.5 text-[0.6rem] uppercase tracking-[0.3em] text-white/70 transition hover:border-gold/60 hover:text-gold-100"
-            >
+            <button className="mt-4 rounded-full border border-gold/30 px-5 py-2 text-[0.6rem] uppercase tracking-[0.3em] text-white/80 transition hover:border-gold/60 hover:text-gold-100">
               Sair
             </button>
           </form>
         </div>
-      </header>
-      <main>{children}</main>
+      </div>
+    );
+  }
+
+  const unread = await countPortalUnread().catch(() => 0);
+
+  return (
+    <div className="flex min-h-[100svh] flex-col bg-black text-white">
+      <PortalHeader fullName={profile.full_name} email={profile.email} />
+      <div className="flex flex-1">
+        <PortalSidebar />
+        <main className="min-w-0 flex-1 pb-24 lg:pb-10">{children}</main>
+      </div>
+      <PortalBottomNav unreadCount={unread} />
     </div>
   );
 }

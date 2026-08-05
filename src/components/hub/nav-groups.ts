@@ -14,6 +14,16 @@ import {
   UserCircle2,
   CheckSquare,
   Shield,
+  Search,
+  Sparkles,
+  ScanText,
+  Zap,
+  Palette,
+  Globe,
+  Rocket,
+  CreditCard,
+  UserPlus,
+  Lock,
   type LucideIcon
 } from 'lucide-react';
 
@@ -58,12 +68,33 @@ export const NAV_GROUPS: NavGroupDef[] = [
     ]
   },
   {
+    label: 'Inteligência',
+    items: [
+      { href: '/assistente',   icon: Sparkles,  label: 'Assistente IA' },
+      { href: '/ocr',          icon: ScanText,  label: 'OCR & extrações' },
+      { href: '/busca',        icon: Search,    label: 'Busca inteligente' },
+      { href: '/automacoes',   icon: Zap,       label: 'Automações' }
+    ]
+  },
+  {
+    label: 'Conta',
+    items: [
+      { href: '/onboarding',   icon: Rocket,     label: 'Onboarding' },
+      { href: '/branding',     icon: Palette,    label: 'Identidade' },
+      { href: '/dominios',     icon: Globe,      label: 'Domínio próprio' },
+      { href: '/equipe',       icon: UserPlus,   label: 'Equipe' },
+      { href: '/billing',      icon: CreditCard, label: 'Assinatura' },
+      { href: '/lgpd',         icon: Lock,       label: 'LGPD & privacidade' }
+    ]
+  },
+  {
     label: 'Sistema',
     items: [
-      { href: '/checklists',    icon: CheckSquare, label: 'Checklists' },
-      { href: '/audit',         icon: Shield,      label: 'Auditoria' },
-      { href: '/usuarios',      icon: Users,       label: 'Usuários',      disabled: true },
-      { href: '/configuracoes', icon: Settings,    label: 'Configurações', disabled: true }
+      { href: '/checklists',       icon: CheckSquare, label: 'Checklists' },
+      { href: '/audit',            icon: Shield,      label: 'Auditoria' },
+      { href: '/integracoes',      icon: Settings,    label: 'Integrações' },
+      { href: '/observabilidade',  icon: BarChart3,   label: 'Observabilidade' },
+      { href: '/suporte',          icon: Users,       label: 'Suporte' }
     ]
   }
 ];
