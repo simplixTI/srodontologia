@@ -465,7 +465,7 @@ select
   t.id                                                        as technician_id,
   t.organization_id,
   t.profile_id,
-  p.name                                                      as technician_name,
+  p.full_name                                                 as technician_name,
   t.specialty,
   t.status,
   count(c.id) filter (where c.completed_at is null)           as active_cards,

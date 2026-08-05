@@ -24,6 +24,7 @@ import {
   CreditCard,
   UserPlus,
   Lock,
+  Wrench,
   type LucideIcon
 } from 'lucide-react';
 
@@ -54,7 +55,8 @@ export const NAV_GROUPS: NavGroupDef[] = [
     label: 'Fluxo',
     items: [
       { href: '/planejamento', icon: ClipboardList, label: 'Planejamento', disabled: true },
-      { href: '/producao',     icon: Cog,           label: 'Produção',     disabled: true },
+      { href: '/producao',     icon: Cog,           label: 'Produção' },
+      { href: '/tecnicos',     icon: Wrench,        label: 'Técnicos' },
       { href: '/financeiro',   icon: DollarSign,    label: 'Financeiro',   disabled: true },
       { href: '/entregas',     icon: Truck,         label: 'Entregas',     disabled: true }
     ]
