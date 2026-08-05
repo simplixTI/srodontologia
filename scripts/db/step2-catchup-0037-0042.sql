@@ -1,14 +1,17 @@
 -- =============================================================
--- STEP 2 · Migrations 0037 → 0042
+-- STEP 2 · Migrations 0037 → 0042 (SEM transação envolvente)
 --
--- Pré-requisito: rodar STEP 1 antes (scripts/db/step1-fix-invoices.sql)
--- que garante que as colunas SaaS de 'invoices' existem.
+-- Cada statement é auto-committed. Motivo: PostgreSQL proíbe
+-- usar valores de enum recém-adicionados na mesma transação
+-- ('unsafe use of new value X of enum type Y').
 --
--- Este arquivo aplica as migrations 0037 a 0042 em ordem.
--- Todas idempotentes. Envolto em transação — falha = rollback total.
+-- Trade-off: se algo falhar no meio, prod fica em estado
+-- parcial. Como tudo é idempotente (if not exists, drop-then-
+-- create policy, create or replace), rodar novamente continua
+-- de onde parou. Nenhum statement é destrutivo.
+--
+-- Pré-requisito: STEP 1 (scripts/db/step1-fix-invoices.sql)
 -- =============================================================
-
-begin;
 
 
 -- =============================================================
@@ -3006,5 +3009,3 @@ $$;
 
 grant execute on function public.is_session_revoked(text) to authenticated;
 
-
-commit;
