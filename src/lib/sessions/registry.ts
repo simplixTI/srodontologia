@@ -2,6 +2,7 @@ import 'server-only';
 import { createHash } from 'crypto';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { logger } from '@/lib/observability/logger';
+import { recogniseDevice } from './device-recognition';
 
 /**
  * Application-level session registry. Complementary to Supabase Auth —
@@ -60,6 +61,15 @@ export async function recordSession(ctx: SessionContext): Promise<void> {
       is_current: true,
       expires_at: new Date(Date.now() + 30 * 24 * 3600_000).toISOString() // 30d ballpark
     });
+
+    // New-device detection is independent of app_sessions row creation:
+    // even if the same session_hash re-inserts, an unseen fingerprint
+    // still warrants a security alert.
+    await recogniseDevice({
+      userId: ctx.userId,
+      userAgent: ctx.userAgent,
+      ip: ctx.ip
+    });
   } catch (err) {
     logger.warn('recordSession failed', { err: (err as Error).message });
   }
@@ -79,16 +89,24 @@ export async function revokeSession(input: {
     const admin = createSupabaseAdminClient();
     const { data: sess } = await admin
       .from('app_sessions')
-      .select('id, user_id')
+      .select('id, user_id, session_hash')
       .eq('id', input.sessionId)
-      .maybeSingle<{ id: string; user_id: string }>();
+      .maybeSingle<{ id: string; user_id: string; session_hash: string }>();
     if (!sess) return { ok: false, error: 'session_not_found' };
     if (sess.user_id !== input.actorUserId) return { ok: false, error: 'forbidden' };
 
+    const nowIso = new Date().toISOString();
     await admin.from('app_sessions').update({
-      revoked_at: new Date().toISOString(),
+      revoked_at: nowIso,
       revoke_reason: input.reason ?? 'user'
     }).eq('id', sess.id);
+
+    // Mirror to fast-lookup cache so middleware can check without an app_sessions
+    // query on every sensitive request. TTL is set by the migration default.
+    await admin.from('app_session_revocation_cache').upsert(
+      { session_hash: sess.session_hash, user_id: sess.user_id, revoked_at: nowIso },
+      { onConflict: 'session_hash' }
+    );
 
     await admin.from('security_events').insert({
       user_id: sess.user_id,
@@ -108,24 +126,52 @@ export async function revokeAllOtherSessions(
   const admin = createSupabaseAdminClient();
   const { data } = await admin
     .from('app_sessions')
-    .select('id')
+    .select('id, session_hash')
     .eq('user_id', userId)
     .neq('session_hash', keepSessionHash)
     .is('revoked_at', null);
-  const ids = (data ?? []).map((r) => (r as { id: string }).id);
-  if (ids.length === 0) return 0;
+  const rows = (data ?? []) as Array<{ id: string; session_hash: string }>;
+  if (rows.length === 0) return 0;
 
+  const nowIso = new Date().toISOString();
   await admin.from('app_sessions').update({
-    revoked_at: new Date().toISOString(),
+    revoked_at: nowIso,
     revoke_reason: 'user_all_others'
-  }).in('id', ids);
+  }).in('id', rows.map((r) => r.id));
+
+  // Mirror to revocation cache — batch upsert.
+  await admin.from('app_session_revocation_cache').upsert(
+    rows.map((r) => ({ session_hash: r.session_hash, user_id: userId, revoked_at: nowIso })),
+    { onConflict: 'session_hash' }
+  );
 
   await admin.from('security_events').insert({
     user_id: userId,
     event_type: 'sessions_bulk_revoked',
-    metadata: { count: ids.length }
+    metadata: { count: rows.length }
   });
-  return ids.length;
+  return rows.length;
+}
+
+/**
+ * Cheap check used by middleware on sensitive routes. Reads only the
+ * revocation cache (single-row PK lookup). Returns true when a session
+ * with this hash was revoked and the cache entry is still fresh.
+ */
+export async function isSessionRevoked(sessionHash: string): Promise<boolean> {
+  try {
+    const admin = createSupabaseAdminClient();
+    const { data } = await admin
+      .from('app_session_revocation_cache')
+      .select('session_hash, expires_at')
+      .eq('session_hash', sessionHash)
+      .maybeSingle<{ session_hash: string; expires_at: string }>();
+    if (!data) return false;
+    return new Date(data.expires_at).getTime() > Date.now();
+  } catch {
+    // If cache lookup fails, fail-open on non-sensitive routes.
+    return false;
+  }
 }
 
 function hashIp(ip: string): string {

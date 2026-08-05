@@ -13,6 +13,7 @@ import { processAiImageAnalysis } from './ai-image-analysis';
 import { processPdfGenerate } from './pdf';
 import { processLgpdExport, processLgpdDeletion } from './lgpd';
 import { processDomainVerify } from './domain';
+import { processDeviceAlert } from './device-alert';
 
 let bootstrapped = false;
 
@@ -38,4 +39,5 @@ export function bootstrapProcessors(): void {
   registerJobProcessor('lgpd_export', processLgpdExport);
   registerJobProcessor('lgpd_deletion', processLgpdDeletion);
   registerJobProcessor('domain_verify', processDomainVerify);
+  registerJobProcessor('device_alert', processDeviceAlert);
 }

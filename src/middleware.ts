@@ -26,6 +26,15 @@ const PUBLIC_PATHS = [
 const INTERNAL_PREFIXES = ['/dashboard', '/crm', '/casos', '/producao', '/financeiro'];
 const DENTIST_PREFIXES = ['/portal'];
 const PLATFORM_PREFIXES = ['/super-admin'];
+// Rotas sensíveis: check adicional de revogação. Trade-off: cada request
+// aqui faz um lookup por PK (session_hash) no cache. Rotas normais confiam
+// no ciclo natural de refresh do Supabase Auth.
+const SENSITIVE_PREFIXES = [
+  '/super-admin',
+  '/configuracoes',
+  '/api/v1/admin',
+  '/financeiro'
+];
 
 const HOME_INTERNAL = '/dashboard';
 const HOME_DENTIST = '/portal';
@@ -149,6 +158,29 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Complementary revocation check on sensitive surfaces. Middleware runs on
+  // Edge — we call an HTTP-only check via the Supabase RPC is_session_revoked
+  // set up in 0042. Fail-open on network errors (never lock out a real user).
+  if (matchesAny(pathname, SENSITIVE_PREFIXES)) {
+    try {
+      const sessionToken = request.cookies.get('sb-access-token')?.value
+        ?? request.cookies.get('sb-refresh-token')?.value;
+      if (sessionToken) {
+        const sessionHash = await sha256Hex(sessionToken);
+        const { data: revoked } = await supabase.rpc('is_session_revoked', { p_session_hash: sessionHash });
+        if (revoked === true) {
+          await supabase.auth.signOut();
+          const url = request.nextUrl.clone();
+          url.pathname = '/login';
+          url.searchParams.set('reason', 'revoked');
+          return NextResponse.redirect(url);
+        }
+      }
+    } catch {
+      // Fail-open: revocation cache miss / RPC unavailable → allow, other guards still apply.
+    }
+  }
+
   if (matchesAny(pathname, PLATFORM_PREFIXES) && !isPlatform) {
     const url = request.nextUrl.clone();
     url.pathname = isDentist ? HOME_DENTIST : HOME_INTERNAL;
@@ -176,3 +208,10 @@ export const config = {
 
 // Ensure this stays public for tests that check what's whitelisted.
 export const PUBLIC_ROUTES = PUBLIC_PATHS;
+
+// Edge-runtime-safe SHA-256 (no Node crypto import).
+async function sha256Hex(input: string): Promise<string> {
+  const enc = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}

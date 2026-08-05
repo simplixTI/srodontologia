@@ -16,7 +16,11 @@ export const JOB_KINDS = [
   'automation_run',
   'lgpd_export',
   'lgpd_deletion',
-  'domain_verify'
+  'domain_verify',
+  'domain_revalidate',
+  'device_alert',
+  'csv_import',
+  'billing_reconcile'
 ] as const;
 
 export type JobKind = (typeof JOB_KINDS)[number];
