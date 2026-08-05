@@ -1,5 +1,6 @@
 import 'server-only';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { getClock } from '@/lib/time/clock';
 
 /**
  * Processes a data_deletion_requests row.
@@ -26,7 +27,8 @@ export async function processDeletionRequest(requestId: string): Promise<void> {
   if (!req) throw new Error('deletion request not found');
   if (req.status !== 'pending') return;
   if (req.cancelled_at) return;
-  if (req.scheduled_at && new Date(req.scheduled_at).getTime() > Date.now()) return;
+  const clock = getClock();
+  if (req.scheduled_at && new Date(req.scheduled_at).getTime() > clock.nowMs()) return;
 
   await admin.from('data_deletion_requests').update({ status: 'processing' }).eq('id', req.id);
 
@@ -45,12 +47,12 @@ export async function processDeletionRequest(requestId: string): Promise<void> {
 
     await admin.from('data_deletion_requests').update({
       status: 'completed',
-      executed_at: new Date().toISOString()
+      executed_at: clock.now().toISOString()
     }).eq('id', req.id);
   } catch (err) {
     await admin.from('data_deletion_requests').update({
       status: 'failed',
-      executed_at: new Date().toISOString()
+      executed_at: clock.now().toISOString()
     }).eq('id', req.id);
     throw err;
   }
@@ -69,7 +71,7 @@ async function anonymizeOrganization(admin: AdminClient, orgId: string) {
     whatsapp: null,
     address: null,
     logo_url: null,
-    deleted_at: new Date().toISOString(),
+    deleted_at: getClock().now().toISOString(),
     subscription_status: 'cancelled'
   }).eq('id', orgId);
 

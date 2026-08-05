@@ -1,6 +1,7 @@
 import 'server-only';
 import { createHash, randomBytes } from 'crypto';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { getClock } from '@/lib/time/clock';
 
 /**
  * Processes a data_export_requests row end-to-end:
@@ -48,14 +49,15 @@ export async function processExportRequest(requestId: string): Promise<void> {
     });
     if (upErr) throw new Error(`upload failed: ${upErr.message}`);
 
-    const expiresAt = new Date();
+    const clock = getClock();
+    const expiresAt = new Date(clock.nowMs());
     expiresAt.setUTCDate(expiresAt.getUTCDate() + 7);
 
     await admin.from('data_export_requests').update({
       status: 'completed',
       storage_path: path,
       file_size: bytes.byteLength,
-      completed_at: new Date().toISOString(),
+      completed_at: clock.now().toISOString(),
       expires_at: expiresAt.toISOString()
     }).eq('id', req.id);
   } catch (err) {
@@ -63,7 +65,7 @@ export async function processExportRequest(requestId: string): Promise<void> {
     await admin.from('data_export_requests').update({
       status: 'failed',
       error: message,
-      completed_at: new Date().toISOString()
+      completed_at: getClock().now().toISOString()
     }).eq('id', req.id);
     throw err;
   }
@@ -105,7 +107,7 @@ async function collectBundle(admin: AdminClient, req: {
 
   const manifest = {
     version: '1.0',
-    exported_at: new Date().toISOString(),
+    exported_at: getClock().now().toISOString(),
     scope,
     organization: org,
     counts: {
