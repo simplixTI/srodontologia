@@ -21,7 +21,11 @@
     "e2e:install": "playwright install --with-deps chromium",
     "validate:staging": "node scripts/validate-staging.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "seed:demo": "node --env-file=.env.local scripts/seed-demo.mjs"
+    "seed:demo": "node --env-file=.env.local scripts/seed-demo.mjs",
+    "k6:baseline": "k6 run k6/scenarios/baseline.js",
+    "k6:small": "k6 run k6/scenarios/small.js",
+    "k6:medium": "k6 run k6/scenarios/medium.js",
+    "k6:peak": "k6 run k6/scenarios/peak.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
