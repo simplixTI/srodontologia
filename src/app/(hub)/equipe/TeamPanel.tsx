@@ -141,19 +141,28 @@ export function TeamPanel({
         )}
 
         <ul className="flex flex-col gap-2">
-          {members.map((m) => (
-            <li key={m.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-3">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-sm text-white">{m.full_name}</div>
-                  <div className="mt-0.5 text-xs text-white/50">{m.email}</div>
+          {members.map((m) => {
+            const isPlatform = m.platform_role === 'super' || m.platform_role === 'support';
+            const badgeLabel = isPlatform
+              ? m.platform_role === 'super'
+                ? 'Super · Plataforma'
+                : 'Suporte · Plataforma'
+              : (ROLE_LABELS[m.role as keyof typeof ROLE_LABELS] ?? m.role);
+            const badgeClass = isPlatform
+              ? 'rounded-full border border-gold/40 bg-gold/10 px-2 py-1 text-[0.55rem] uppercase tracking-[0.28em] text-gold-100'
+              : 'rounded-full border border-white/15 bg-white/[0.05] px-2 py-1 text-[0.55rem] uppercase tracking-[0.28em] text-white/70';
+            return (
+              <li key={m.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-sm text-white">{m.full_name}</div>
+                    <div className="mt-0.5 text-xs text-white/50">{m.email}</div>
+                  </div>
+                  <span className={badgeClass}>{badgeLabel}</span>
                 </div>
-                <span className="rounded-full border border-white/15 bg-white/[0.05] px-2 py-1 text-[0.55rem] uppercase tracking-[0.28em] text-white/70">
-                  {ROLE_LABELS[m.role as keyof typeof ROLE_LABELS] ?? m.role}
-                </span>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       </section>
 
