@@ -25,7 +25,17 @@ const PUBLIC_PATHS = [
 
 const INTERNAL_PREFIXES = ['/dashboard', '/crm', '/casos', '/producao', '/financeiro'];
 const DENTIST_PREFIXES = ['/portal'];
-const PLATFORM_PREFIXES = ['/super-admin'];
+// Rotas exclusivas da plataforma (SUPER_ADMIN). Inclui gestão técnica
+// que o ADMIN do escritório não deve tocar: DNS/SSL de domínios,
+// jobs/observabilidade, integrações globais, feature flags. O
+// middleware bloqueia por profile.platform_role; guard duplo é
+// aplicado nas próprias páginas (defesa em profundidade).
+const PLATFORM_PREFIXES = [
+  '/super-admin',
+  '/dominios',
+  '/observabilidade',
+  '/integracoes'
+];
 // Rotas sensíveis: check adicional de revogação. Trade-off: cada request
 // aqui faz um lookup por PK (session_hash) no cache. Rotas normais confiam
 // no ciclo natural de refresh do Supabase Auth.
@@ -33,7 +43,10 @@ const SENSITIVE_PREFIXES = [
   '/super-admin',
   '/configuracoes',
   '/api/v1/admin',
-  '/financeiro'
+  '/financeiro',
+  '/dominios',
+  '/observabilidade',
+  '/integracoes'
 ];
 
 const HOME_INTERNAL = '/dashboard';
@@ -111,7 +124,12 @@ export async function middleware(request: NextRequest) {
   if (!supabase) return response;
 
   if (!user) {
-    if (matchesAny(pathname, INTERNAL_PREFIXES) || matchesAny(pathname, DENTIST_PREFIXES) || pathname === CHANGE_PW) {
+    if (
+      matchesAny(pathname, INTERNAL_PREFIXES) ||
+      matchesAny(pathname, DENTIST_PREFIXES) ||
+      matchesAny(pathname, PLATFORM_PREFIXES) ||
+      pathname === CHANGE_PW
+    ) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
       url.searchParams.set('next', pathname);

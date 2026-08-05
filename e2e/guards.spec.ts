@@ -17,13 +17,17 @@ const PROTECTED_PATHS = [
   '/portal/casos',
   '/super-admin',
   '/super-admin/tenants',
+  '/super-admin/dominios',
   '/billing',
   '/onboarding',
   '/branding',
   '/dominios',
   '/equipe',
   '/lgpd',
-  '/perfil/seguranca'
+  '/perfil/seguranca',
+  '/api-tokens',
+  '/observabilidade',
+  '/integracoes'
 ];
 
 test.describe('route guards', () => {

@@ -11,12 +11,22 @@
 export type UserRole =
   | 'super_admin'
   | 'admin'
+  | 'manager'
   | 'commercial'
+  | 'reception'
   | 'technical_planning'
   | 'production'
   | 'finance'
   | 'logistics'
+  | 'delivery'
+  | 'viewer'
   | 'dentist';
+
+/**
+ * Papel de plataforma (SaaS) — separado de UserRole (papel do escritório).
+ * Reside em profiles.platform_role. NULL para usuários operacionais.
+ */
+export type PlatformRole = 'super' | 'support';
 
 export type UserStatus = 'active' | 'invited' | 'suspended' | 'archived';
 
@@ -58,6 +68,7 @@ type ProfileRow = {
   phone: string | null;
   avatar_url: string | null;
   role: UserRole;
+  platform_role: PlatformRole | null;
   status: UserStatus;
   must_change_password: boolean;
   last_login_at: string | null;
@@ -85,6 +96,7 @@ type ProfileUpdate = {
   phone?: string | null;
   avatar_url?: string | null;
   role?: UserRole;
+  platform_role?: PlatformRole | null;
   status?: UserStatus;
   must_change_password?: boolean;
   last_login_at?: string | null;
@@ -206,6 +218,14 @@ export type Database = {
         Returns: boolean;
       };
       is_super_admin: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
+      is_platform_admin: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
+      is_office_admin: {
         Args: Record<string, never>;
         Returns: boolean;
       };

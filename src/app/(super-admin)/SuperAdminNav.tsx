@@ -15,12 +15,14 @@ import {
   Cog,
   ScrollText,
   Sparkles,
-  Bell
+  Bell,
+  Globe
 } from 'lucide-react';
 
 const ITEMS = [
   { href: '/super-admin',                   icon: LayoutGrid,  label: 'Visão geral' },
   { href: '/super-admin/tenants',           icon: Building2,   label: 'Tenants' },
+  { href: '/super-admin/dominios',          icon: Globe,       label: 'Domínios' },
   { href: '/super-admin/usuarios',          icon: Users,       label: 'Usuários' },
   { href: '/super-admin/planos',            icon: Package,     label: 'Planos' },
   { href: '/super-admin/assinaturas',       icon: Sparkles,    label: 'Assinaturas' },

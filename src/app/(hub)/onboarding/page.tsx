@@ -14,7 +14,7 @@ const STEP_LABELS: Record<OnboardingStep, { title: string; description: string; 
   team:         { title: 'Equipe',         description: 'Convide sua equipe interna.',       cta: 'Convidar', href: '/equipe' },
   clinic:       { title: 'Primeira clínica', description: 'Cadastre uma clínica parceira.', cta: 'Cadastrar', href: '/clinicas/novo' },
   first_case:   { title: 'Primeiro caso',  description: 'Envie ou crie um caso de exemplo.', cta: 'Começar',  href: '/casos/novo' },
-  integrations: { title: 'Integrações',    description: 'WhatsApp, Email, IA (opcional).',    cta: 'Configurar', href: '/integracoes' },
+  integrations: { title: 'Integrações',    description: 'Solicite ao suporte se precisar de WhatsApp/Email/IA.', cta: 'Continuar', href: '/suporte' },
   done:         { title: 'Pronto!',        description: 'Onboarding concluído.',              cta: 'Ir ao dashboard', href: '/dashboard' }
 };
 

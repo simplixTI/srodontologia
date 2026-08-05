@@ -9,8 +9,8 @@ export default function ConfigPage() {
       <header>
         <h1 className="font-display text-3xl text-white md:text-4xl">Configurações globais</h1>
         <p className="mt-2 text-sm text-white/60">
-          Providers e integrações são configurados por tenant em <code className="rounded bg-black/40 px-1">/integracoes</code>.
-          Secrets são lidos apenas de variáveis de ambiente do servidor.
+          Providers e integrações globais são gerenciados pelo SUPER_ADMIN. Secrets são
+          lidos apenas de variáveis de ambiente do servidor.
         </p>
       </header>
 

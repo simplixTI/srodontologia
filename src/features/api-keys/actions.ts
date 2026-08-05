@@ -57,7 +57,7 @@ export async function createApiKeyAction(input: unknown): Promise<CreateKeyResul
       .single<{ id: string }>();
     if (error) return { ok: false, error: error.message };
 
-    revalidatePath('/integracoes/api');
+    revalidatePath('/api-tokens');
     return { ok: true, token, prefix, id: data!.id };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Falha ao criar chave.' };
@@ -73,7 +73,7 @@ export async function revokeApiKeyAction(id: string): Promise<{ ok: boolean; err
       .eq('id', id)
       .eq('organization_id', profile.organization_id);
     if (error) return { ok: false, error: error.message };
-    revalidatePath('/integracoes/api');
+    revalidatePath('/api-tokens');
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Falha ao revogar chave.' };

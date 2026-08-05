@@ -1,7 +1,8 @@
 import 'server-only';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import type { PlatformRole } from '@/types/database';
 
-export type PlatformRole = 'super' | 'support';
+export type { PlatformRole };
 
 export type PlatformUser = {
   id: string;
@@ -35,8 +36,15 @@ export async function getPlatformUser(): Promise<PlatformUser | null> {
   };
 }
 
+/** Throws 'platform_forbidden' se caller não for platform admin. */
 export async function requirePlatformUser(): Promise<PlatformUser> {
   const u = await getPlatformUser();
   if (!u) throw new Error('platform_forbidden');
   return u;
+}
+
+/** True se caller é platform admin com privilégio 'super'. */
+export async function isSuperPlatformAdmin(): Promise<boolean> {
+  const u = await getPlatformUser();
+  return u?.platform_role === 'super';
 }

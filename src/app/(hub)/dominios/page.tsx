@@ -1,22 +1,18 @@
-import type { Metadata } from 'next';
-import { listDomains } from '@/features/domains/queries';
-import { DomainsPanel } from './DomainsPanel';
+import { redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { title: 'Domínio próprio · SR HUB' };
-
-export default async function DomainsPage() {
-  const domains = await listDomains();
-  return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 md:px-8 md:py-10">
-      <header>
-        <div className="text-[0.55rem] uppercase tracking-[0.35em] text-gold-100">SaaS</div>
-        <h1 className="mt-1 font-display text-3xl text-white md:text-4xl">Domínio próprio</h1>
-        <p className="mt-2 text-sm text-white/60">
-          Configure um domínio personalizado (ex.: <code>portal.suaempresa.com.br</code>) para o portal do dentista.
-        </p>
-      </header>
-      <DomainsPanel initial={domains} />
-    </div>
-  );
+/**
+ * A gestão de domínios foi movida para /super-admin/dominios.
+ * O ADMIN do escritório vê apenas a URL ativa em "Configurações do
+ * Escritório" (informativo, sem edição). Qualquer acesso direto a
+ * /dominios é redirecionado.
+ *
+ * Guard duplo:
+ *   • middleware.ts inclui /dominios em PLATFORM_PREFIXES (proibido
+ *     para não-platform).
+ *   • esta página redireciona defensivamente para /dashboard caso
+ *     alguém consiga alcançá-la (rota mantida apenas para retro-
+ *     compatibilidade e link legado).
+ */
+export default function DomainsMovedPage() {
+  redirect('/dashboard');
 }

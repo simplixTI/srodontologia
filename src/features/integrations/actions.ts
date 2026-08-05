@@ -47,7 +47,7 @@ export async function saveIntegrationAction(input: unknown): Promise<ActionState
       { onConflict: 'organization_id,kind' }
     );
     if (error) return { ok: false, error: error.message };
-    revalidatePath('/integracoes');
+    revalidatePath('/super-admin/configuracoes');
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Falha ao salvar integração.' };
@@ -89,7 +89,7 @@ export async function saveAiSettingsAction(input: unknown): Promise<ActionState>
       updated_by: user.id
     });
     if (error) return { ok: false, error: error.message };
-    revalidatePath('/integracoes');
+    revalidatePath('/super-admin/configuracoes');
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Falha ao salvar configuração de IA.' };

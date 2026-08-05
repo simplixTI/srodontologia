@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "hub:create-admin": "node --env-file=.env.local scripts/create-admin.mjs",
+    "hub:seed-roles": "node --env-file=.env.local scripts/seed-roles.mjs",
     "hub:invite-user": "node --env-file=.env.local scripts/invite-user.mjs",
     "hub:migrate": "supabase db push",
     "hub:seed": "supabase db reset",

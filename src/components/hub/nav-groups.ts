@@ -10,22 +10,20 @@ import {
   Calendar,
   FolderOpen,
   BarChart3,
-  Settings,
   UserCircle2,
   CheckSquare,
   Shield,
   Search,
   Sparkles,
   ScanText,
-  Zap,
   Palette,
-  Globe,
   Rocket,
   CreditCard,
   UserPlus,
   Lock,
   Wrench,
   ShieldCheck,
+  MessageSquare,
   type LucideIcon
 } from 'lucide-react';
 
@@ -41,6 +39,20 @@ export type NavGroupDef = {
   items: NavItemDef[];
 };
 
+/**
+ * Menu do ADMIN (escritório).
+ *
+ * Removido intencionalmente (agora exclusivo do SUPER_ADMIN / plataforma):
+ *   • Domínio próprio      → /super-admin/dominios
+ *   • Observabilidade      → /super-admin/status, /super-admin/jobs, /super-admin/logs
+ *   • Integrações globais  → /super-admin/features, /super-admin/configuracoes
+ *   • Automações técnicas  → /super-admin/features
+ *
+ * Mantido no ADMIN por ser operacional do escritório:
+ *   • Assinatura           → apenas leitura do plano atual + limites
+ *   • LGPD & privacidade   → titulares, consentimentos, exportação (operacional)
+ *   • Auditoria            → logs do próprio tenant
+ */
 export const NAV_GROUPS: NavGroupDef[] = [
   {
     label: 'Operação',
@@ -55,50 +67,41 @@ export const NAV_GROUPS: NavGroupDef[] = [
   {
     label: 'Fluxo',
     items: [
-      { href: '/planejamento', icon: ClipboardList, label: 'Planejamento' },
-      { href: '/producao',     icon: Cog,           label: 'Produção' },
-      { href: '/tecnicos',     icon: Wrench,        label: 'Técnicos' },
-      { href: '/qualidade',    icon: ShieldCheck,   label: 'Qualidade' },
-      { href: '/financeiro',   icon: DollarSign,    label: 'Financeiro' },
-      { href: '/entregas/romaneios', icon: Truck,   label: 'Entregas' }
+      { href: '/planejamento',       icon: ClipboardList, label: 'Planejamento' },
+      { href: '/producao',           icon: Cog,           label: 'Produção' },
+      { href: '/tecnicos',           icon: Wrench,        label: 'Técnicos' },
+      { href: '/qualidade',          icon: ShieldCheck,   label: 'Qualidade' },
+      { href: '/financeiro',         icon: DollarSign,    label: 'Financeiro' },
+      { href: '/entregas/romaneios', icon: Truck,         label: 'Entregas' }
     ]
   },
   {
     label: 'Estúdio',
     items: [
-      { href: '/agenda',     icon: Calendar,   label: 'Agenda' },
-      { href: '/arquivos',   icon: FolderOpen, label: 'Arquivos' },
-      { href: '/relatorios', icon: BarChart3,  label: 'Relatórios' }
+      { href: '/agenda',     icon: Calendar,       label: 'Agenda' },
+      { href: '/arquivos',   icon: FolderOpen,     label: 'Arquivos' },
+      { href: '/relatorios', icon: BarChart3,      label: 'Relatórios' }
     ]
   },
   {
-    label: 'Inteligência',
+    label: 'Atendimento',
     items: [
-      { href: '/assistente',   icon: Sparkles,  label: 'Assistente IA' },
-      { href: '/ocr',          icon: ScanText,  label: 'OCR & extrações' },
-      { href: '/busca',        icon: Search,    label: 'Busca inteligente' },
-      { href: '/automacoes',   icon: Zap,       label: 'Automações' }
+      { href: '/assistente', icon: MessageSquare, label: 'Mensagens' },
+      { href: '/busca',      icon: Search,        label: 'Busca' },
+      { href: '/ocr',        icon: ScanText,      label: 'OCR' }
     ]
   },
   {
-    label: 'Conta',
+    label: 'Escritório',
     items: [
-      { href: '/onboarding',   icon: Rocket,     label: 'Onboarding' },
-      { href: '/branding',     icon: Palette,    label: 'Identidade' },
-      { href: '/dominios',     icon: Globe,      label: 'Domínio próprio' },
-      { href: '/equipe',       icon: UserPlus,   label: 'Equipe' },
-      { href: '/billing',      icon: CreditCard, label: 'Assinatura' },
-      { href: '/lgpd',         icon: Lock,       label: 'LGPD & privacidade' }
-    ]
-  },
-  {
-    label: 'Sistema',
-    items: [
-      { href: '/checklists',       icon: CheckSquare, label: 'Checklists' },
-      { href: '/audit',            icon: Shield,      label: 'Auditoria' },
-      { href: '/integracoes',      icon: Settings,    label: 'Integrações' },
-      { href: '/observabilidade',  icon: BarChart3,   label: 'Observabilidade' },
-      { href: '/suporte',          icon: Users,       label: 'Suporte' }
+      { href: '/onboarding', icon: Rocket,     label: 'Onboarding' },
+      { href: '/branding',   icon: Palette,    label: 'Identidade' },
+      { href: '/equipe',     icon: UserPlus,   label: 'Equipe' },
+      { href: '/billing',    icon: CreditCard, label: 'Assinatura' },
+      { href: '/lgpd',       icon: Lock,       label: 'LGPD & privacidade' },
+      { href: '/audit',      icon: Shield,     label: 'Auditoria' },
+      { href: '/checklists', icon: CheckSquare, label: 'Checklists' },
+      { href: '/suporte',    icon: Sparkles,   label: 'Suporte' }
     ]
   }
 ];

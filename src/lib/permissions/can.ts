@@ -2,15 +2,21 @@ import type { UserRole } from '@/types/database';
 import { ROLES } from './roles';
 
 /**
- * Coarse-grained RBAC helper.
+ * Coarse-grained RBAC helper para o escritório (tenant).
  *
- * These checks are for UI shaping only. Every write path must
- * still be protected server-side via Supabase RLS + server actions.
+ * Estes checks são apenas para modelagem de UI. Toda escrita deve
+ * ser protegida server-side via RLS + server actions. Administração
+ * da plataforma (super_admin) vive em src/lib/permissions/platform.ts.
+ *
+ * Convenção: role `super_admin` e `admin` são tratados como office admin
+ * e recebem acesso a todas as abilities (`alwaysAllowed`).
  */
 
-const alwaysAllowed = new Set<UserRole>([ROLES.SUPER_ADMIN]);
+const alwaysAllowed = new Set<UserRole>([ROLES.SUPER_ADMIN, ROLES.ADMIN]);
 
 export type Ability =
+  | 'office.dashboard.read'
+  | 'clients.manage'
   | 'crm.read'
   | 'crm.write'
   | 'cases.read'
@@ -25,50 +31,77 @@ export type Ability =
   | 'finance.write'
   | 'deliveries.read'
   | 'deliveries.write'
+  | 'schedule.manage'
+  | 'messages.manage'
+  | 'team.manage'
   | 'users.read'
   | 'users.write'
-  | 'settings.read'
-  | 'settings.write'
+  | 'office_settings.read'
+  | 'office_settings.write'
+  | 'office_branding.manage'
   | 'reports.read'
   | 'audit.read';
 
 const abilityMatrix: Record<Ability, UserRole[]> = {
-  'crm.read': [ROLES.ADMIN, ROLES.COMMERCIAL],
-  'crm.write': [ROLES.ADMIN, ROLES.COMMERCIAL],
-
-  'cases.read': [
-    ROLES.ADMIN,
+  'office.dashboard.read': [
+    ROLES.MANAGER,
     ROLES.COMMERCIAL,
+    ROLES.RECEPTION,
     ROLES.TECHNICAL_PLANNING,
     ROLES.PRODUCTION,
     ROLES.FINANCE,
-    ROLES.LOGISTICS
+    ROLES.LOGISTICS,
+    ROLES.DELIVERY,
+    ROLES.VIEWER
   ],
-  'cases.write': [ROLES.ADMIN, ROLES.TECHNICAL_PLANNING, ROLES.PRODUCTION],
-  'cases.assign': [ROLES.ADMIN, ROLES.COMMERCIAL, ROLES.TECHNICAL_PLANNING],
 
-  'planning.read': [ROLES.ADMIN, ROLES.TECHNICAL_PLANNING, ROLES.PRODUCTION],
-  'planning.write': [ROLES.ADMIN, ROLES.TECHNICAL_PLANNING],
-  'planning.approve': [ROLES.ADMIN, ROLES.TECHNICAL_PLANNING],
+  'clients.manage': [ROLES.MANAGER, ROLES.COMMERCIAL, ROLES.RECEPTION],
 
-  'production.read': [ROLES.ADMIN, ROLES.PRODUCTION, ROLES.TECHNICAL_PLANNING],
-  'production.write': [ROLES.ADMIN, ROLES.PRODUCTION],
+  'crm.read': [ROLES.MANAGER, ROLES.COMMERCIAL, ROLES.RECEPTION, ROLES.VIEWER],
+  'crm.write': [ROLES.MANAGER, ROLES.COMMERCIAL, ROLES.RECEPTION],
 
-  'finance.read': [ROLES.ADMIN, ROLES.FINANCE],
-  'finance.write': [ROLES.ADMIN, ROLES.FINANCE],
+  'cases.read': [
+    ROLES.MANAGER,
+    ROLES.COMMERCIAL,
+    ROLES.RECEPTION,
+    ROLES.TECHNICAL_PLANNING,
+    ROLES.PRODUCTION,
+    ROLES.FINANCE,
+    ROLES.LOGISTICS,
+    ROLES.DELIVERY,
+    ROLES.VIEWER
+  ],
+  'cases.write': [ROLES.MANAGER, ROLES.TECHNICAL_PLANNING, ROLES.PRODUCTION, ROLES.RECEPTION],
+  'cases.assign': [ROLES.MANAGER, ROLES.COMMERCIAL, ROLES.TECHNICAL_PLANNING],
 
-  'deliveries.read': [ROLES.ADMIN, ROLES.LOGISTICS, ROLES.PRODUCTION],
-  'deliveries.write': [ROLES.ADMIN, ROLES.LOGISTICS],
+  'planning.read': [ROLES.MANAGER, ROLES.TECHNICAL_PLANNING, ROLES.PRODUCTION],
+  'planning.write': [ROLES.MANAGER, ROLES.TECHNICAL_PLANNING],
+  'planning.approve': [ROLES.MANAGER, ROLES.TECHNICAL_PLANNING],
 
-  'users.read': [ROLES.ADMIN],
-  'users.write': [ROLES.ADMIN],
+  'production.read': [ROLES.MANAGER, ROLES.PRODUCTION, ROLES.TECHNICAL_PLANNING],
+  'production.write': [ROLES.MANAGER, ROLES.PRODUCTION],
 
-  'settings.read': [ROLES.ADMIN],
-  'settings.write': [ROLES.ADMIN],
+  'finance.read': [ROLES.MANAGER, ROLES.FINANCE],
+  'finance.write': [ROLES.MANAGER, ROLES.FINANCE],
 
-  'reports.read': [ROLES.ADMIN, ROLES.COMMERCIAL, ROLES.FINANCE],
+  'deliveries.read': [ROLES.MANAGER, ROLES.LOGISTICS, ROLES.DELIVERY, ROLES.PRODUCTION],
+  'deliveries.write': [ROLES.MANAGER, ROLES.LOGISTICS, ROLES.DELIVERY],
 
-  'audit.read': [ROLES.ADMIN]
+  'schedule.manage': [ROLES.MANAGER, ROLES.RECEPTION, ROLES.COMMERCIAL],
+  'messages.manage': [ROLES.MANAGER, ROLES.RECEPTION, ROLES.COMMERCIAL],
+
+  'team.manage': [ROLES.MANAGER],
+
+  'users.read': [ROLES.MANAGER],
+  'users.write': [ROLES.MANAGER],
+
+  'office_settings.read': [ROLES.MANAGER],
+  'office_settings.write': [ROLES.MANAGER],
+  'office_branding.manage': [ROLES.MANAGER],
+
+  'reports.read': [ROLES.MANAGER, ROLES.COMMERCIAL, ROLES.FINANCE, ROLES.VIEWER],
+
+  'audit.read': [ROLES.MANAGER]
 };
 
 export function can(role: UserRole | null | undefined, ability: Ability): boolean {
