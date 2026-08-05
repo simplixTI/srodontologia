@@ -84,6 +84,18 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - **Tranche E · Launch:** [analytics/tracker.ts](src/lib/analytics/tracker.ts) com redação (13 event types, campos sensíveis blocked) · [FeedbackButton](src/components/feedback/FeedbackButton.tsx) fixo em todo hub · `/status` pública (revalida 30s) com incidents · [seed-demo.mjs](scripts/seed-demo.mjs) protegido (SEED_DEMO_CONFIRM=yes + block em production)
 - **Tranche F · Comercial:** páginas `/termos`, `/privacidade`, `/cookies`, `/seguranca` (públicas, hydrated de `legal_documents`) · [smoke.mjs](scripts/smoke.mjs) 9 checks · 14 docs novos (phase-8, e2e-testing, custom-domain-routing, captcha-and-abuse-protection, session-management, error-tracking, load-testing, security-testing, staging-environment, pilot-operation, first-tenant-onboarding, release-and-rollback, product-analytics, support-sla)
 
+## 🏭 Fase 10A · Produção (MES) + Técnicos
+- Migration [0045](supabase/migrations/0045_phase10a_production_mes.sql): `production_stages` (etapas configuráveis por org, seed default de 9 etapas) · `production_cards` (1:1 com `cases`, prioridade, SLA, `total_time_ms`, `rework_count`) · `production_events` (histórico imutável de transições com `duration_ms`) · `technicians` (extensão de `profiles`, `specialty`, `team`, `hourly_cost`, `weekly_hours`) · `technician_skills` (com nível `beginner..expert`) · `technician_availability` · views `v_production_metrics` e `v_technician_workload` · RPC `advance_production_card` (transição atômica com validação same-org e cálculo automático de SLA) · seed `seed_default_production_stages(org_id)` idempotente
+- **Kanban Produção** [/producao](src/app/hub/producao/page.tsx): SSR + drag/drop otimista + filtros (prioridade, sem responsável, atrasados) · [ProductionKanban.tsx](src/app/hub/producao/ProductionKanban.tsx) client component com priority dropdown inline · [/producao/[cardId]](src/app/hub/producao/[cardId]/page.tsx) detalhe com KPIs (etapa/prioridade/retrabalho/tempo total), painel Avançar Etapa + Retrabalho, painel Prioridade, linha do tempo de transições
+- **Config de etapas** [/producao/configurar](src/app/hub/producao/configurar/page.tsx): CRUD com reorder (setas), toggle ativa/inativa, delete bloqueado se houver cartões
+- **Técnicos** [/tecnicos](src/app/hub/tecnicos/page.tsx): lista com KPIs (fila ativa, atrasados, urgentes, retrabalho total) via `v_technician_workload` · [/tecnicos/novo](src/app/hub/tecnicos/novo/page.tsx) form promove profile a técnico com validação de disponibilidade · [/tecnicos/[id]](src/app/hub/tecnicos/[id]/page.tsx) detalhe + fila + painel de skills
+- **Server actions** [features/production/actions.ts](src/features/production/actions.ts): `createStageAction`, `updateStageAction`, `deleteStageAction`, `reorderStagesAction`, `createCardForCaseAction`, `advanceCardAction`, `assignCardAction`, `updatePriorityAction` · [features/technicians/actions.ts](src/features/technicians/actions.ts): `createTechnicianAction`, `updateTechnicianAction`, `updateStatusAction`, `addSkillAction`, `removeSkillAction`, `deleteTechnicianAction`
+- **Event bus** 5 novos types: `production.card_created`, `production.stage_changed`, `production.rework_flagged`, `production.card_completed`, `production.card_assigned` — publicados em cada transição pelas actions
+- **RLS strict + role gate**: config só `super_admin`/`admin`/`technical_planning`; cards e events aceitam `production` e `logistics`; técnicos apenas admin/planning
+- **Nav**: grupo Fluxo agora com `/producao` e `/tecnicos` ativos ([nav-groups.ts](src/components/hub/nav-groups.ts))
+- **Testes**: [production-validations.test.ts](tests/production-validations.test.ts) (25 testes de schemas Zod) · [production.spec.ts](e2e/production.spec.ts) smoke E2E de rotas protegidas · **107 testes vitest passando** · typecheck limpo
+- **Docs**: [phase-10a-production-mes.md](docs/phase-10a-production-mes.md) · plano em [docs/superpowers/plans/2026-08-05-fase-10a-producao-mes.md](docs/superpowers/plans/2026-08-05-fase-10a-producao-mes.md)
+
 ## ⏭️ Próximo
 - 2FA UI (base `user_totp_secrets` já criada) + enforcement via flag `security.2fa_required`
 - Processor jobs `data_export` + `data_deletion` (agendada, execução em 30d)
@@ -96,11 +108,12 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - Ajustar template Resend (já feito na Fase 5 pós-tarefa)
 
 ## Números atuais
-- **39 migrations** aplicadas no Supabase (0001-0039)
-- **~60 tabelas** com RLS strict
+- **45 migrations** aplicadas no Supabase (0001-0045)
+- **~70 tabelas** com RLS strict (6 novas na Fase 10A)
 - **6 storage buckets** privados
-- **~200+ arquivos** em `src/`
-- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (26+), `/portal/*` (6), `/api/*` (v1 pública + webhooks + cron)
+- **~230+ arquivos** em `src/`
+- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (28+), `/portal/*` (6), `/api/*` (v1 pública + webhooks + cron)
 - API pública: `/api/v1/cases`, `/api/v1/openapi`
 - Webhook billing: `/api/webhooks/billing/{provider}` (Stripe HMAC)
 - Signup público self-serve: `/signup` (14 dias trial no plano Starter)
+- **107 testes vitest passando**; typecheck limpo
