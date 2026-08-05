@@ -11,7 +11,30 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
-    instrumentationHook: true
+    instrumentationHook: true,
+    // Sentry SDK v10 uses experimental orchestrion which pulls ESM-only
+    // `@apm-js-collab/tracing-hooks`. Keeping Sentry Node packages external
+    // lets Next skip bundling and load them at runtime via require/import.
+    serverComponentsExternalPackages: [
+      '@sentry/nextjs',
+      '@sentry/node',
+      '@sentry/opentelemetry',
+      '@sentry/server-utils',
+      '@apm-js-collab/tracing-hooks'
+    ]
+  },
+  // Webpack fallback: ignore the offending dynamic import at bundle time.
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = config.externals ?? [];
+      // Some transitive requires still land on webpack; mark them external.
+      if (Array.isArray(config.externals)) {
+        config.externals.push({
+          '@apm-js-collab/tracing-hooks/hook-sync.mjs': 'commonjs @apm-js-collab/tracing-hooks/hook-sync.mjs'
+        });
+      }
+    }
+    return config;
   },
   async headers() {
     const isProd = process.env.NODE_ENV === 'production';
