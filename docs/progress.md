@@ -84,6 +84,16 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - **Tranche E · Launch:** [analytics/tracker.ts](src/lib/analytics/tracker.ts) com redação (13 event types, campos sensíveis blocked) · [FeedbackButton](src/components/feedback/FeedbackButton.tsx) fixo em todo hub · `/status` pública (revalida 30s) com incidents · [seed-demo.mjs](scripts/seed-demo.mjs) protegido (SEED_DEMO_CONFIRM=yes + block em production)
 - **Tranche F · Comercial:** páginas `/termos`, `/privacidade`, `/cookies`, `/seguranca` (públicas, hydrated de `legal_documents`) · [smoke.mjs](scripts/smoke.mjs) 9 checks · 14 docs novos (phase-8, e2e-testing, custom-domain-routing, captcha-and-abuse-protection, session-management, error-tracking, load-testing, security-testing, staging-environment, pilot-operation, first-tenant-onboarding, release-and-rollback, product-analytics, support-sla)
 
+## 📐 Fase 10B · Planejamento v2
+- Migration [0046](supabase/migrations/0046_phase10b_planning_v2.sql): `planning_versions` +signature/promotion fields (dentist_signed_*, internal_signed_*, checklist_completed_at, sent_at, promoted_to_production_at, production_card_id, template_id, estimated_delivery_at) · `planning_templates` (por org, opcionalmente por case_type, is_default) · `planning_template_items` (checklist items com position, is_required) · `planning_checklist_items` (por versão, ad-hoc ou instanciado do template) · `planning_comments` (thread com is_internal — separação interna vs visível ao dentista) · RPC `instantiate_planning_checklist` · RPC `promote_planning_to_production` (cria/reusa production_card + audit em planning_actions) · view `v_planning_activity`
+- **Rotas UI**: [/planejamento](src/app/hub/planejamento/page.tsx) lista consolidada com filtros por status · [/planejamento/[versionId]](src/app/hub/planejamento/[versionId]/page.tsx) detalhe com KPIs, ações, checklist, comments · [/planejamento/templates](src/app/hub/planejamento/templates/page.tsx) CRUD templates com editor de items
+- **Server actions**: 15 novas em [features/planning/actions.ts](src/features/planning/actions.ts) (createVersion, transitionVersion, promoteToProduction, templates CRUD, checklist CRUD, comments) · shim retrocompat `createPlanningVersionAction` para não quebrar `WorkflowsTabs`
+- **Integração 10A → 10B**: aprovação + botão "Enviar para produção" chama `promote_planning_to_production` que cria cartão MES; publica `production.card_created` com `via: 'planning_promotion'`
+- **RLS granular**: comments com policies separadas para interno vs dentista (join em `dentists.profile_id`)
+- **Nav**: `/planejamento` ativo no grupo Fluxo
+- **Testes**: [planning-validations.test.ts](tests/planning-validations.test.ts) (21 testes de schemas) · [planning.spec.ts](e2e/planning.spec.ts) smoke E2E · **128 testes vitest passando**
+- **Docs**: [phase-10b-planning-v2.md](docs/phase-10b-planning-v2.md)
+
 ## 🏭 Fase 10A · Produção (MES) + Técnicos
 - Migration [0045](supabase/migrations/0045_phase10a_production_mes.sql): `production_stages` (etapas configuráveis por org, seed default de 9 etapas) · `production_cards` (1:1 com `cases`, prioridade, SLA, `total_time_ms`, `rework_count`) · `production_events` (histórico imutável de transições com `duration_ms`) · `technicians` (extensão de `profiles`, `specialty`, `team`, `hourly_cost`, `weekly_hours`) · `technician_skills` (com nível `beginner..expert`) · `technician_availability` · views `v_production_metrics` e `v_technician_workload` · RPC `advance_production_card` (transição atômica com validação same-org e cálculo automático de SLA) · seed `seed_default_production_stages(org_id)` idempotente
 - **Kanban Produção** [/producao](src/app/hub/producao/page.tsx): SSR + drag/drop otimista + filtros (prioridade, sem responsável, atrasados) · [ProductionKanban.tsx](src/app/hub/producao/ProductionKanban.tsx) client component com priority dropdown inline · [/producao/[cardId]](src/app/hub/producao/[cardId]/page.tsx) detalhe com KPIs (etapa/prioridade/retrabalho/tempo total), painel Avançar Etapa + Retrabalho, painel Prioridade, linha do tempo de transições
@@ -108,12 +118,12 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - Ajustar template Resend (já feito na Fase 5 pós-tarefa)
 
 ## Números atuais
-- **45 migrations** aplicadas no Supabase (0001-0045)
-- **~70 tabelas** com RLS strict (6 novas na Fase 10A)
+- **46 migrations** aplicadas no Supabase (0001-0046)
+- **~74 tabelas** com RLS strict (10 novas nas Fases 10A + 10B)
 - **6 storage buckets** privados
-- **~230+ arquivos** em `src/`
-- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (28+), `/portal/*` (6), `/api/*` (v1 pública + webhooks + cron)
+- **~250+ arquivos** em `src/`
+- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (30+), `/portal/*` (6), `/api/*` (v1 pública + webhooks + cron)
 - API pública: `/api/v1/cases`, `/api/v1/openapi`
 - Webhook billing: `/api/webhooks/billing/{provider}` (Stripe HMAC)
 - Signup público self-serve: `/signup` (14 dias trial no plano Starter)
-- **107 testes vitest passando**; typecheck limpo
+- **128 testes vitest passando**; typecheck limpo

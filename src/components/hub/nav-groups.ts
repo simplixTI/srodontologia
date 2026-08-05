@@ -54,7 +54,7 @@ export const NAV_GROUPS: NavGroupDef[] = [
   {
     label: 'Fluxo',
     items: [
-      { href: '/planejamento', icon: ClipboardList, label: 'Planejamento', disabled: true },
+      { href: '/planejamento', icon: ClipboardList, label: 'Planejamento' },
       { href: '/producao',     icon: Cog,           label: 'Produção' },
       { href: '/tecnicos',     icon: Wrench,        label: 'Técnicos' },
       { href: '/financeiro',   icon: DollarSign,    label: 'Financeiro',   disabled: true },
