@@ -84,6 +84,14 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - **Tranche E · Launch:** [analytics/tracker.ts](src/lib/analytics/tracker.ts) com redação (13 event types, campos sensíveis blocked) · [FeedbackButton](src/components/feedback/FeedbackButton.tsx) fixo em todo hub · `/status` pública (revalida 30s) com incidents · [seed-demo.mjs](scripts/seed-demo.mjs) protegido (SEED_DEMO_CONFIRM=yes + block em production)
 - **Tranche F · Comercial:** páginas `/termos`, `/privacidade`, `/cookies`, `/seguranca` (públicas, hydrated de `legal_documents`) · [smoke.mjs](scripts/smoke.mjs) 9 checks · 14 docs novos (phase-8, e2e-testing, custom-domain-routing, captcha-and-abuse-protection, session-management, error-tracking, load-testing, security-testing, staging-environment, pilot-operation, first-tenant-onboarding, release-and-rollback, product-analytics, support-sla)
 
+## 💰 Fase 10D · Financeiro v2
+- Migration [0048](supabase/migrations/0048_phase10d_financial_v2.sql): `fin_categories` (árvore parent_id, kind revenue/expense) · `fin_cost_centers` · `fin_accounts_payable` (fornecedor, categoria, CC, vencimento, status pending/scheduled/paid/overdue/cancelled) · `fin_commissions` (beneficiary, base × %, workflow pending/approved/paid) · `fin_transactions` (livro-razão unificado com source_type/source_id) · RPCs `pay_payable` (atômico: marca conta + cria txn), `register_invoice_payment_txn` (idempotente), `mark_overdue_payables` (cron) · Views `v_finance_kpis` (30d+MTD), `v_cash_flow_daily` (90d), `v_dre_month` (12m por categoria), `v_payables_open`
+- **Rotas UI**: [/financeiro](src/app/hub/financeiro/page.tsx) dashboard com KPIs + gráfico fluxo de caixa SVG puro + últimas transações · [/financeiro/pagar](src/app/hub/financeiro/pagar/page.tsx) lista com filtros e badge overdue · [/financeiro/pagar/[id]](src/app/hub/financeiro/pagar/[payableId]/page.tsx) detalhe com PayPanel via RPC · [/financeiro/categorias](src/app/hub/financeiro/categorias/page.tsx) CRUD 2-col · [/financeiro/centros-custo](src/app/hub/financeiro/centros-custo/page.tsx) CRUD · [/financeiro/comissoes](src/app/hub/financeiro/comissoes/page.tsx) workflow pending→approved→paid (auto-gera txn expense) · [/financeiro/dre](src/app/hub/financeiro/dre/page.tsx) DRE mensal 12m
+- **Server actions**: 14 server actions com `requireFinance` role gate
+- **Nav**: `/financeiro` ativo no grupo Fluxo
+- **Testes**: [finance-v2-validations.test.ts](tests/finance-v2-validations.test.ts) (17 testes) · [finance-v2.spec.ts](e2e/finance-v2.spec.ts) smoke · **177 testes vitest passando**
+- **Docs**: [phase-10d-financial-v2.md](docs/phase-10d-financial-v2.md)
+
 ## 🛡️ Fase 10C · Quality Control + Entregas v2
 - Migration [0047](supabase/migrations/0047_phase10c_qc_deliveries_v2.sql): **Bloco QC** — `qc_checklists`, `qc_checklist_items`, `qc_inspections`, `qc_inspection_items`, `qc_photos` · RPCs `instantiate_qc_inspection` e `finalize_qc_inspection` (auto-envia p/ retrabalho via `advance_production_card`) · view `v_qc_metrics`
 - Migration [0047](supabase/migrations/0047_phase10c_qc_deliveries_v2.sql): **Bloco Entregas v2** — `delivery_drivers`, `delivery_carriers`, `delivery_routes`, `delivery_manifests` (com `qr_token` opaco e `code` auto ROM-000123), `delivery_manifest_items`, `delivery_incidents` · `deliveries` +driver/carrier/route/manifest/qr/barcode/origin/destination · RPC `next_manifest_code(org)` sequencial · view `v_delivery_kpis`
@@ -129,12 +137,12 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - Ajustar template Resend (já feito na Fase 5 pós-tarefa)
 
 ## Números atuais
-- **47 migrations** aplicadas no Supabase (0001-0047)
-- **~85 tabelas** com RLS strict (21 novas nas Fases 10A + 10B + 10C)
+- **48 migrations** aplicadas no Supabase (0001-0048)
+- **~90 tabelas** com RLS strict (26 novas nas Fases 10A+10B+10C+10D)
 - **6 storage buckets** privados
-- **~280+ arquivos** em `src/`
-- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (35+), `/portal/*` (6), `/api/*` (v1 pública + webhooks + cron)
+- **~310+ arquivos** em `src/`
+- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (40+), `/portal/*` (6), `/api/*` (v1 pública + webhooks + cron)
 - API pública: `/api/v1/cases`, `/api/v1/openapi`
 - Webhook billing: `/api/webhooks/billing/{provider}` (Stripe HMAC)
 - Signup público self-serve: `/signup` (14 dias trial no plano Starter)
-- **160 testes vitest passando**; typecheck limpo
+- **177 testes vitest passando**; typecheck limpo

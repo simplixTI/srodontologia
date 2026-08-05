@@ -59,7 +59,7 @@ export const NAV_GROUPS: NavGroupDef[] = [
       { href: '/producao',     icon: Cog,           label: 'Produção' },
       { href: '/tecnicos',     icon: Wrench,        label: 'Técnicos' },
       { href: '/qualidade',    icon: ShieldCheck,   label: 'Qualidade' },
-      { href: '/financeiro',   icon: DollarSign,    label: 'Financeiro',   disabled: true },
+      { href: '/financeiro',   icon: DollarSign,    label: 'Financeiro' },
       { href: '/entregas/romaneios', icon: Truck,   label: 'Entregas' }
     ]
   },
