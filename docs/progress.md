@@ -84,6 +84,15 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - **Tranche E · Launch:** [analytics/tracker.ts](src/lib/analytics/tracker.ts) com redação (13 event types, campos sensíveis blocked) · [FeedbackButton](src/components/feedback/FeedbackButton.tsx) fixo em todo hub · `/status` pública (revalida 30s) com incidents · [seed-demo.mjs](scripts/seed-demo.mjs) protegido (SEED_DEMO_CONFIRM=yes + block em production)
 - **Tranche F · Comercial:** páginas `/termos`, `/privacidade`, `/cookies`, `/seguranca` (públicas, hydrated de `legal_documents`) · [smoke.mjs](scripts/smoke.mjs) 9 checks · 14 docs novos (phase-8, e2e-testing, custom-domain-routing, captcha-and-abuse-protection, session-management, error-tracking, load-testing, security-testing, staging-environment, pilot-operation, first-tenant-onboarding, release-and-rollback, product-analytics, support-sla)
 
+## 📅 Fase 10E · Agenda + DAM
+- Migration [0049](supabase/migrations/0049_phase10e_calendar_dam.sql): **Agenda** — `calendar_events` (9 kinds), `calendar_event_attendees`, RPC `generate_ics` · **DAM** — `file_tags`, `file_tag_assignments` (M:N com case_files), `file_collections` (is_shared vs pessoal), `file_collection_items`, `file_favorites` · view `v_dam_file_summary` (tag_names + is_favorite + collection_count por arquivo)
+- **Rotas Agenda**: [/agenda](src/app/hub/agenda/page.tsx) grid mensal 7-col com eventos colorizados por kind + navegação prev/next · [/agenda/novo](src/app/hub/agenda/novo/page.tsx) form completo · [/agenda/[id]](src/app/hub/agenda/[eventId]/page.tsx) detalhe + cancelar/excluir + download .ics · endpoint `/api/agenda/[id]/ics` via RPC
+- **Rotas DAM**: [/arquivos](src/app/hub/arquivos/page.tsx) grid 60 recentes com busca por nome/caso + filtro por tag + toggle favorito · [/arquivos/tags](src/app/hub/arquivos/tags/page.tsx) CRUD coloridas · [/arquivos/colecoes](src/app/hub/arquivos/colecoes/page.tsx) CRUD (compartilhada vs pessoal) · [/arquivos/favoritos](src/app/hub/arquivos/favoritos/page.tsx)
+- **Server actions**: 4 novas Agenda + 9 novas DAM, role gate internal-only
+- **Nav**: `/agenda` e `/arquivos` ativos no grupo Estúdio
+- **Testes**: [calendar-dam-validations.test.ts](tests/calendar-dam-validations.test.ts) (20 testes) · [calendar-dam.spec.ts](e2e/calendar-dam.spec.ts) smoke · **197 testes vitest passando**
+- **Docs**: [phase-10e-calendar-dam.md](docs/phase-10e-calendar-dam.md)
+
 ## 💰 Fase 10D · Financeiro v2
 - Migration [0048](supabase/migrations/0048_phase10d_financial_v2.sql): `fin_categories` (árvore parent_id, kind revenue/expense) · `fin_cost_centers` · `fin_accounts_payable` (fornecedor, categoria, CC, vencimento, status pending/scheduled/paid/overdue/cancelled) · `fin_commissions` (beneficiary, base × %, workflow pending/approved/paid) · `fin_transactions` (livro-razão unificado com source_type/source_id) · RPCs `pay_payable` (atômico: marca conta + cria txn), `register_invoice_payment_txn` (idempotente), `mark_overdue_payables` (cron) · Views `v_finance_kpis` (30d+MTD), `v_cash_flow_daily` (90d), `v_dre_month` (12m por categoria), `v_payables_open`
 - **Rotas UI**: [/financeiro](src/app/hub/financeiro/page.tsx) dashboard com KPIs + gráfico fluxo de caixa SVG puro + últimas transações · [/financeiro/pagar](src/app/hub/financeiro/pagar/page.tsx) lista com filtros e badge overdue · [/financeiro/pagar/[id]](src/app/hub/financeiro/pagar/[payableId]/page.tsx) detalhe com PayPanel via RPC · [/financeiro/categorias](src/app/hub/financeiro/categorias/page.tsx) CRUD 2-col · [/financeiro/centros-custo](src/app/hub/financeiro/centros-custo/page.tsx) CRUD · [/financeiro/comissoes](src/app/hub/financeiro/comissoes/page.tsx) workflow pending→approved→paid (auto-gera txn expense) · [/financeiro/dre](src/app/hub/financeiro/dre/page.tsx) DRE mensal 12m
@@ -137,12 +146,12 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - Ajustar template Resend (já feito na Fase 5 pós-tarefa)
 
 ## Números atuais
-- **48 migrations** aplicadas no Supabase (0001-0048)
-- **~90 tabelas** com RLS strict (26 novas nas Fases 10A+10B+10C+10D)
+- **49 migrations** aplicadas no Supabase (0001-0049)
+- **~98 tabelas** com RLS strict (33 novas nas Fases 10A+10B+10C+10D+10E)
 - **6 storage buckets** privados
-- **~310+ arquivos** em `src/`
-- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (40+), `/portal/*` (6), `/api/*` (v1 pública + webhooks + cron)
-- API pública: `/api/v1/cases`, `/api/v1/openapi`
+- **~350+ arquivos** em `src/`
+- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (48+), `/portal/*` (6), `/api/*` (v1 + agenda ics + webhooks + cron)
+- API pública: `/api/v1/cases`, `/api/v1/openapi`, `/api/agenda/[id]/ics`
 - Webhook billing: `/api/webhooks/billing/{provider}` (Stripe HMAC)
 - Signup público self-serve: `/signup` (14 dias trial no plano Starter)
-- **177 testes vitest passando**; typecheck limpo
+- **197 testes vitest passando**; typecheck limpo
