@@ -84,6 +84,17 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - **Tranche E · Launch:** [analytics/tracker.ts](src/lib/analytics/tracker.ts) com redação (13 event types, campos sensíveis blocked) · [FeedbackButton](src/components/feedback/FeedbackButton.tsx) fixo em todo hub · `/status` pública (revalida 30s) com incidents · [seed-demo.mjs](scripts/seed-demo.mjs) protegido (SEED_DEMO_CONFIRM=yes + block em production)
 - **Tranche F · Comercial:** páginas `/termos`, `/privacidade`, `/cookies`, `/seguranca` (públicas, hydrated de `legal_documents`) · [smoke.mjs](scripts/smoke.mjs) 9 checks · 14 docs novos (phase-8, e2e-testing, custom-domain-routing, captcha-and-abuse-protection, session-management, error-tracking, load-testing, security-testing, staging-environment, pilot-operation, first-tenant-onboarding, release-and-rollback, product-analytics, support-sla)
 
+## 🛡️ Fase 10C · Quality Control + Entregas v2
+- Migration [0047](supabase/migrations/0047_phase10c_qc_deliveries_v2.sql): **Bloco QC** — `qc_checklists`, `qc_checklist_items`, `qc_inspections`, `qc_inspection_items`, `qc_photos` · RPCs `instantiate_qc_inspection` e `finalize_qc_inspection` (auto-envia p/ retrabalho via `advance_production_card`) · view `v_qc_metrics`
+- Migration [0047](supabase/migrations/0047_phase10c_qc_deliveries_v2.sql): **Bloco Entregas v2** — `delivery_drivers`, `delivery_carriers`, `delivery_routes`, `delivery_manifests` (com `qr_token` opaco e `code` auto ROM-000123), `delivery_manifest_items`, `delivery_incidents` · `deliveries` +driver/carrier/route/manifest/qr/barcode/origin/destination · RPC `next_manifest_code(org)` sequencial · view `v_delivery_kpis`
+- **Rotas UI QC**: [/qualidade](src/app/hub/qualidade/page.tsx) dashboard com KPIs + lista · [/qualidade/[id]](src/app/hub/qualidade/[inspectionId]/page.tsx) formulário completo (pass/fail/na por item, motivo obrigatório em falha, aprovar/reprovar+retrabalho) · [/qualidade/templates](src/app/hub/qualidade/templates/page.tsx) CRUD com items críticos
+- **Rotas UI Entregas v2**: [/entregas/romaneios](src/app/hub/entregas/romaneios/page.tsx) lista · [/entregas/romaneios/[id]](src/app/hub/entregas/romaneios/[manifestId]/page.tsx) detalhe com incluir/remover deliveries, workflow draft→ready→dispatched→in_transit→completed, painel QR+tracking URL · [/entregas/motoristas](src/app/hub/entregas/motoristas/page.tsx) CRUD · [/entregas/rotas](src/app/hub/entregas/rotas/page.tsx) CRUD com atribuição de motorista
+- **Server actions**: 8 novas QC + 16 novas Entregas v2, role gate por função (`technical_planning/production` p/ QC, `logistics` p/ entregas)
+- **Integração 10A ↔ 10C**: reprovação QC dispara `advance_production_card` movendo cartão MES para etapa de retrabalho + `production.rework_flagged` event
+- **Nav**: `/qualidade` e `/entregas/romaneios` ativos no grupo Fluxo
+- **Testes**: [qc-deliveries-validations.test.ts](tests/qc-deliveries-validations.test.ts) (32 testes) · [qc-deliveries.spec.ts](e2e/qc-deliveries.spec.ts) smoke · **160 testes vitest passando**
+- **Docs**: [phase-10c-qc-deliveries-v2.md](docs/phase-10c-qc-deliveries-v2.md)
+
 ## 📐 Fase 10B · Planejamento v2
 - Migration [0046](supabase/migrations/0046_phase10b_planning_v2.sql): `planning_versions` +signature/promotion fields (dentist_signed_*, internal_signed_*, checklist_completed_at, sent_at, promoted_to_production_at, production_card_id, template_id, estimated_delivery_at) · `planning_templates` (por org, opcionalmente por case_type, is_default) · `planning_template_items` (checklist items com position, is_required) · `planning_checklist_items` (por versão, ad-hoc ou instanciado do template) · `planning_comments` (thread com is_internal — separação interna vs visível ao dentista) · RPC `instantiate_planning_checklist` · RPC `promote_planning_to_production` (cria/reusa production_card + audit em planning_actions) · view `v_planning_activity`
 - **Rotas UI**: [/planejamento](src/app/hub/planejamento/page.tsx) lista consolidada com filtros por status · [/planejamento/[versionId]](src/app/hub/planejamento/[versionId]/page.tsx) detalhe com KPIs, ações, checklist, comments · [/planejamento/templates](src/app/hub/planejamento/templates/page.tsx) CRUD templates com editor de items
@@ -118,12 +129,12 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - Ajustar template Resend (já feito na Fase 5 pós-tarefa)
 
 ## Números atuais
-- **46 migrations** aplicadas no Supabase (0001-0046)
-- **~74 tabelas** com RLS strict (10 novas nas Fases 10A + 10B)
+- **47 migrations** aplicadas no Supabase (0001-0047)
+- **~85 tabelas** com RLS strict (21 novas nas Fases 10A + 10B + 10C)
 - **6 storage buckets** privados
-- **~250+ arquivos** em `src/`
-- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (30+), `/portal/*` (6), `/api/*` (v1 pública + webhooks + cron)
+- **~280+ arquivos** em `src/`
+- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (35+), `/portal/*` (6), `/api/*` (v1 pública + webhooks + cron)
 - API pública: `/api/v1/cases`, `/api/v1/openapi`
 - Webhook billing: `/api/webhooks/billing/{provider}` (Stripe HMAC)
 - Signup público self-serve: `/signup` (14 dias trial no plano Starter)
-- **128 testes vitest passando**; typecheck limpo
+- **160 testes vitest passando**; typecheck limpo

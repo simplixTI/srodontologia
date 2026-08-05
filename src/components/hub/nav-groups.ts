@@ -25,6 +25,7 @@ import {
   UserPlus,
   Lock,
   Wrench,
+  ShieldCheck,
   type LucideIcon
 } from 'lucide-react';
 
@@ -57,8 +58,9 @@ export const NAV_GROUPS: NavGroupDef[] = [
       { href: '/planejamento', icon: ClipboardList, label: 'Planejamento' },
       { href: '/producao',     icon: Cog,           label: 'Produção' },
       { href: '/tecnicos',     icon: Wrench,        label: 'Técnicos' },
+      { href: '/qualidade',    icon: ShieldCheck,   label: 'Qualidade' },
       { href: '/financeiro',   icon: DollarSign,    label: 'Financeiro',   disabled: true },
-      { href: '/entregas',     icon: Truck,         label: 'Entregas',     disabled: true }
+      { href: '/entregas/romaneios', icon: Truck,   label: 'Entregas' }
     ]
   },
   {
