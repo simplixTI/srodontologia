@@ -146,12 +146,12 @@ Timeline canônica do desenvolvimento. Cada linha = um marco entregue em produç
 - Ajustar template Resend (já feito na Fase 5 pós-tarefa)
 
 ## Números atuais
-- **49 migrations** aplicadas no Supabase (0001-0049)
-- **~98 tabelas** com RLS strict (33 novas nas Fases 10A+10B+10C+10D+10E)
+- **50 migrations** aplicadas no Supabase (0001-0050) · Fase 10 completa
+- **~98 tabelas** + **12 report views** com RLS strict
 - **6 storage buckets** privados
-- **~350+ arquivos** em `src/`
-- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (48+), `/portal/*` (6), `/api/*` (v1 + agenda ics + webhooks + cron)
-- API pública: `/api/v1/cases`, `/api/v1/openapi`, `/api/agenda/[id]/ics`
+- **~365+ arquivos** em `src/`
+- **4 áreas de rotas:** `/super-admin/*` (12), `/hub/*` (50+), `/portal/*` (6), `/api/*` (v1 + agenda ics + reports csv + webhooks + cron)
+- API pública: `/api/v1/cases`, `/api/v1/openapi`, `/api/agenda/[id]/ics`, `/api/reports/[key].csv`
 - Webhook billing: `/api/webhooks/billing/{provider}` (Stripe HMAC)
 - Signup público self-serve: `/signup` (14 dias trial no plano Starter)
-- **197 testes vitest passando**; typecheck limpo
+- **205 testes vitest passando**; typecheck limpo

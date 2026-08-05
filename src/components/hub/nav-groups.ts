@@ -68,7 +68,7 @@ export const NAV_GROUPS: NavGroupDef[] = [
     items: [
       { href: '/agenda',     icon: Calendar,   label: 'Agenda' },
       { href: '/arquivos',   icon: FolderOpen, label: 'Arquivos' },
-      { href: '/relatorios', icon: BarChart3,  label: 'Relatórios', disabled: true }
+      { href: '/relatorios', icon: BarChart3,  label: 'Relatórios' }
     ]
   },
   {
