@@ -1,5 +1,6 @@
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
-import { readImpersonationCookie, stopImpersonationAction } from '@/features/impersonation/actions';
+import { stopImpersonationAction } from '@/features/impersonation/actions';
+import { readImpersonationCookie } from '@/lib/impersonation/cookie';
 
 /**
  * Yellow banner shown at the top of any authenticated layout when the caller

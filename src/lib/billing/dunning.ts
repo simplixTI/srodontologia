@@ -1,5 +1,6 @@
 import 'server-only';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { getClock } from '@/lib/time/clock';
 
 /**
  * Gradual dunning cycle for past-due tenants.
@@ -14,7 +15,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
  */
 export async function runDunningTick(): Promise<{ scanned: number; upgraded: number }> {
   const admin = createSupabaseAdminClient();
-  const now = Date.now();
+  const now = getClock().nowMs();
 
   const { data: orgs } = await admin
     .from('organizations')
@@ -44,7 +45,7 @@ export async function runDunningTick(): Promise<{ scanned: number; upgraded: num
     if (targetStage === 5) {
       await admin.from('organizations').update({
         subscription_status: 'suspended',
-        suspended_at: new Date().toISOString(),
+        suspended_at: getClock().now().toISOString(),
         suspended_reason: 'dunning:30d_unpaid'
       }).eq('id', org.id);
     }

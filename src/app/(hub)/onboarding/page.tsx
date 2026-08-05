@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { getOnboardingProgress } from '@/features/onboarding/queries';
-import { STEP_ORDER, type OnboardingStep } from '@/features/onboarding/actions';
+import { STEP_ORDER, type OnboardingStep } from '@/features/onboarding/steps';
 import { OnboardingStepButton } from './OnboardingStepButton';
 
 export const dynamic = 'force-dynamic';

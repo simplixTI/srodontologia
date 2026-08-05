@@ -7,10 +7,9 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { requirePlatformUser } from '@/lib/permissions/platform';
+import { IMPERSONATION_COOKIE } from '@/lib/impersonation/cookie';
 
 export type ActionState = { ok: boolean; error?: string };
-
-const IMPERSONATION_COOKIE = 'sr_impersonation';
 
 const startSchema = z.object({
   tenantId: z.string().uuid(),
@@ -94,11 +93,5 @@ export async function stopImpersonationAction(): Promise<void> {
   redirect('/super-admin/tenants');
 }
 
-/** Reads active impersonation from cookie (used by layouts to show banner). */
-export function readImpersonationCookie(): { id: string; token: string } | null {
-  const c = cookies().get(IMPERSONATION_COOKIE)?.value;
-  if (!c) return null;
-  const [id, token] = c.split('.');
-  if (!id || !token) return null;
-  return { id, token };
-}
+// `readImpersonationCookie` (sync) moved to `@/lib/impersonation/cookie` to satisfy
+// Next 14 Server Actions constraint: files with 'use server' may only export async fns.

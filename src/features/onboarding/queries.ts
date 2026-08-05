@@ -1,6 +1,6 @@
 import 'server-only';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import type { OnboardingStep } from './actions';
+import type { OnboardingStep } from './steps';
 
 export type OnboardingProgress = {
   completed_steps: OnboardingStep[];

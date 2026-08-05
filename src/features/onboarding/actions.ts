@@ -2,18 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-
-export type OnboardingStep = 'company' | 'branding' | 'team' | 'clinic' | 'first_case' | 'integrations' | 'done';
-
-export const STEP_ORDER: OnboardingStep[] = [
-  'company',
-  'branding',
-  'team',
-  'clinic',
-  'first_case',
-  'integrations',
-  'done'
-];
+import { STEP_ORDER, type OnboardingStep } from './steps';
 
 async function requireAdminInOrg() {
   const supabase = createSupabaseServerClient();

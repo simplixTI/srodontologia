@@ -3,7 +3,8 @@
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { completeOnboardingStepAction, type OnboardingStep } from '@/features/onboarding/actions';
+import { completeOnboardingStepAction } from '@/features/onboarding/actions';
+import type { OnboardingStep } from '@/features/onboarding/steps';
 
 export function OnboardingStepButton({ step, label }: { step: OnboardingStep; label: string }) {
   const router = useRouter();

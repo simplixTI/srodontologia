@@ -3,22 +3,33 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Playwright configuration.
  *
- * Environments controlled by `E2E_BASE_URL` env var:
- *   - Local:   http://localhost:3000 (default)
- *   - Staging: https://staging.srdigital.com.br
- *   - CI:      set via workflow
+ * Modes controlled by env:
+ *   - E2E_BASE_URL      → hits a remote target; webServer disabled
+ *   - E2E_NO_SERVER=1   → assume dev server already running on baseURL
+ *   - (default)         → auto-start `next dev` in-band
  *
- * Real production URL is never used for tests.
+ * Guards:
+ *   - Never point E2E_BASE_URL at production.
+ *   - CI uses `E2E_ALLOW_DATABASE_RESET=true` explicitly (see fixtures).
  */
 
-const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:3000';
+const remoteBaseURL = process.env.E2E_BASE_URL;
+const baseURL = remoteBaseURL ?? 'http://localhost:3010';
 const isCI = !!process.env.CI;
+const noServer = process.env.E2E_NO_SERVER === '1';
+
+// Refuse to run against production hostnames — accidental commit guard.
+if (remoteBaseURL && /(?:^|\.)app\.srdigital\.com\.br(?::|\/|$)/i.test(remoteBaseURL)) {
+  // Print + non-zero exit is done by Playwright when it fails to boot;
+  // here we throw so no test executes.
+  throw new Error('Refusing to run E2E against production URL.');
+}
 
 export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
   expect: { timeout: 10_000 },
-  fullyParallel: false,           // fluxos compartilham estado no DB de teste
+  fullyParallel: false,
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
   workers: isCI ? 1 : 2,
@@ -32,14 +43,16 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } }
-    // Firefox/Safari podem ser habilitados após validação inicial
   ],
-  webServer: process.env.E2E_START_SERVER
-    ? {
-        command: 'npm run dev',
-        url: baseURL,
-        reuseExistingServer: !isCI,
-        timeout: 120_000
-      }
-    : undefined
+  webServer:
+    remoteBaseURL || noServer
+      ? undefined
+      : {
+          command: 'npm run dev -- -p 3010',
+          url: baseURL,
+          reuseExistingServer: !isCI,
+          timeout: 180_000,
+          stdout: 'ignore',
+          stderr: 'pipe'
+        }
 });
