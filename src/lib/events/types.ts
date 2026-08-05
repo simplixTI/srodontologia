@@ -31,7 +31,12 @@ export const DOMAIN_EVENT_TYPES = [
   'notification.created',
   'file.uploaded',
   'ocr.completed',
-  'ai.summary_generated'
+  'ai.summary_generated',
+  'production.card_created',
+  'production.stage_changed',
+  'production.card_completed',
+  'production.rework_flagged',
+  'production.card_assigned'
 ] as const;
 
 export type DomainEventType = (typeof DOMAIN_EVENT_TYPES)[number];
