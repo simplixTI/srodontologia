@@ -16,13 +16,28 @@ import {
   ScrollText,
   Sparkles,
   Bell,
-  Globe
+  Globe,
+  type LucideIcon
 } from 'lucide-react';
 
-const ITEMS = [
+type NavItem = {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  disabled?: boolean;
+  disabledHint?: string;
+};
+
+const ITEMS: NavItem[] = [
   { href: '/super-admin',                   icon: LayoutGrid,  label: 'Visão geral' },
   { href: '/super-admin/tenants',           icon: Building2,   label: 'Tenants' },
-  { href: '/super-admin/dominios',          icon: Globe,       label: 'Domínios' },
+  {
+    href: '/super-admin/dominios',
+    icon: Globe,
+    label: 'Domínios',
+    disabled: true,
+    disabledHint: 'Standby · portal usa /portal no domínio principal'
+  },
   { href: '/super-admin/usuarios',          icon: Users,       label: 'Usuários' },
   { href: '/super-admin/planos',            icon: Package,     label: 'Planos' },
   { href: '/super-admin/assinaturas',       icon: Sparkles,    label: 'Assinaturas' },
@@ -43,6 +58,24 @@ export function SuperAdminNav() {
       {ITEMS.map((it) => {
         const active = pathname === it.href || (it.href !== '/super-admin' && pathname.startsWith(it.href + '/'));
         const Icon = it.icon;
+
+        if (it.disabled) {
+          return (
+            <div
+              key={it.href}
+              title={it.disabledHint ?? 'Recurso em standby'}
+              aria-disabled="true"
+              className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2 text-sm text-white/25"
+            >
+              <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <span className="flex-1">{it.label}</span>
+              <span className="rounded-full border border-white/10 px-1.5 py-0.5 text-[0.5rem] uppercase tracking-[0.2em] text-white/40">
+                standby
+              </span>
+            </div>
+          );
+        }
+
         return (
           <Link
             key={it.href}
